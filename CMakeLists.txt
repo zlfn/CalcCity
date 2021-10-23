@@ -13,9 +13,15 @@ set(SOURCES
   src/main.c
 )
 
+set(ASSETS)
+
 set(ASSETS_fx
-  
+  assets-fx/large_tileset.png
+  assets-fx/large_water.png
+  assets-fx/title.png
 )
+
+set(ASSETS_cg)
 
 fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
@@ -27,6 +33,6 @@ if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
   generate_g1a(TARGET myaddin OUTPUT "CalcCity.g1a"
     NAME "CalcCity" ICON assets-fx/icon.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
-  generate_g3a(TARGET myaddin OUTPUT "MyAddin.g3a"
-    NAME "MyAddin" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
+  generate_g3a(TARGET myaddin OUTPUT "CalcCity.g3a"
+    NAME "CalcCity" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 endif()
