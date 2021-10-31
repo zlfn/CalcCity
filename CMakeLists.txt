@@ -11,6 +11,8 @@ find_package(Gint 2.1 REQUIRED)
 
 set(SOURCES
   src/main.c
+  src/core.c
+  src/display.c
 )
 
 set(ASSETS)

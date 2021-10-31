@@ -1,6 +1,9 @@
 #ifndef _CALCCITY_H
 #define _CALCCITY_H
 
+#include <gint/std/stdlib.h>
+
+
 struct calccity
 {
 	// human's statistics = {happyness, health, education, housing, work, food} 
@@ -32,7 +35,8 @@ struct calccity
 	int blinker;
 
 	// in-game options
-	bool disaster;
+	uint8_t disaster;
+	uint8_t animation;
 	int time_speed;
 
 };
@@ -52,5 +56,7 @@ struct map
 	unsigned char data[50][50];
 };
 
+
+#define ENGINE_TICK 1000
 
 #endif /* _CALCCITY_H */
