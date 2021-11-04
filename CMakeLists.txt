@@ -13,14 +13,17 @@ set(SOURCES
   src/main.c
   src/core.c
   src/display.c
+  src/menus.c
 )
 
 set(ASSETS)
 
 set(ASSETS_fx
+  assets-fx/calccity.png
   assets-fx/large_tileset.png
   assets-fx/large_water.png
   assets-fx/title.png
+  assets-fx/fn_keys.png
 )
 
 set(ASSETS_cg)

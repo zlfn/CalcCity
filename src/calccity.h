@@ -3,41 +3,42 @@
 
 #include <gint/std/stdlib.h>
 
-
 struct calccity
 {
 	// human's statistics = {happyness, health, education, housing, work, food} 
-	signed long humans[6];
+	unsigned long humans[6];
 
 	// population evolution = {population, birth_rate, death_rate, immigration, emigration}
-	signed long population[5];
+	unsigned long population[5];
 
 	// trade statistics = {import, export, production, commercial, industrial, annual_cost}
-	signed long trade[6];
+	unsigned long trade[6];
 
 	// production = {water, power}
-	signed long production[2];
+	unsigned long production[2];
 
 	// consumption = {water, power}
-	signed long consumption[2];
+	unsigned long consumption[2];
 
 	// some others statistics = {treasure, crime, safety, fire_hazard, nuclear_hazard, pollution, transport, grabage, graves}
-	signed long misc[9];
+	unsigned long misc[9];
 
 	// taxes in percents on {housing, trade, industry, export}
-	int taxes[4];
+	unsigned int taxes[4];
 
 	// fund in percents on {police, fireman, education, heathcare}
-	int funds[4];
+	unsigned int funds[4];
 
 	// in-game time
 	int month, year;
 	int blinker;
+	int tick;
 
 	// in-game options
 	uint8_t disaster;
 	uint8_t animation;
 	int time_speed;
+	int menu;
 
 };
 
@@ -57,6 +58,6 @@ struct map
 };
 
 
-#define ENGINE_TICK 1000
+#define ENGINE_TICK 100
 
 #endif /* _CALCCITY_H */
