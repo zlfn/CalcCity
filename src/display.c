@@ -1,5 +1,6 @@
 #include <gint/display.h>
 #include <gint/keyboard.h>
+#include <math.h>
 
 #include "display.h"
 
@@ -15,12 +16,18 @@ void title_screen(void)
 }
 
 
+void main_display(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor)
+{
+    // Display map
+	display_large_map(calccity, camera, map);
+	display_around(calccity, camera, disp_cursor);
+}
+
+
 void display_large_map(struct calccity *calccity, struct camera *camera, struct map *map)
 {
 	extern const bopti_image_t img_large_tileset;
 	extern const bopti_image_t img_large_water;
-
-	dclear(C_WHITE);
 
 	for (int y = 0; y < 4; y++)
 	{
@@ -44,7 +51,7 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 }
 
 
-void display_around(struct calccity *calccity, struct camera *camera)
+void display_around(struct calccity *calccity, struct camera *camera, const int disp_cursor)
 {
 	extern const bopti_image_t img_fn_keys;
 
@@ -61,11 +68,13 @@ void display_around(struct calccity *calccity, struct camera *camera)
 	dprint_opt(4, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
 	
 	// Cursor
-	drect_border(8 * camera->cursor_x + 3, 8 * camera->cursor_y, 8 * camera->cursor_x + 11, 8 * camera->cursor_y + 8, C_WHITE, 1, C_BLACK);
-	dline(8 * camera->cursor_x + 6, 8 * camera->cursor_y + 4, 8 * camera->cursor_x + 8, 8 * camera->cursor_y + 4, C_BLACK);
-	dline(8 * camera->cursor_x + 7, 8 * camera->cursor_y + 3, 8 * camera->cursor_x + 7, 8 * camera->cursor_y + 5, C_BLACK);
-
-
-	dupdate();
+	if (disp_cursor)
+	{
+		int middle_x = floor(camera->cursor_size[0] / 2) + 3;
+		int middle_y = floor(camera->cursor_size[1] / 2);
+		drect_border(camera->cursor_size[0] * camera->cursor_x + 3, camera->cursor_size[1] * camera->cursor_y, camera->cursor_size[0] * camera->cursor_x + 3 + camera->cursor_size[0], camera->cursor_size[1] * camera->cursor_y + camera->cursor_size[1], C_WHITE, 1, C_BLACK);
+		dline(camera->cursor_size[0] * camera->cursor_x + middle_x - 1, camera->cursor_size[1] * camera->cursor_y + middle_y    , camera->cursor_size[0] * camera->cursor_x + middle_x + 1, camera->cursor_size[1] * camera->cursor_y + middle_y    , C_BLACK);
+		dline(camera->cursor_size[0] * camera->cursor_x + middle_x    , camera->cursor_size[1] * camera->cursor_y + middle_y - 1, camera->cursor_size[0] * camera->cursor_x + middle_x    , camera->cursor_size[1] * camera->cursor_y + middle_y + 1, C_BLACK);
+	}
 }
 

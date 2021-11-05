@@ -1,8 +1,10 @@
 #include <gint/keyboard.h>
-#include <gint/std/stdlib.h>
+#include <gint/display.h>
 #include <gint/std/string.h>
 #include <gint/timer.h>
 #include <gint/clock.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "core.h"
 
@@ -44,6 +46,8 @@ void default_values(struct calccity *calccity, struct camera *camera, struct map
 	memset(camera, 0, sizeof *camera);
 	camera->cursor_x = 2;
 	camera->cursor_y = 2;
+	camera->cursor_size[0] = 8;
+	camera->cursor_size[1] = 8;
 
 
 	// Initialisation of struct map
@@ -151,8 +155,6 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 	int end = 0, key = 0;
 
-	//int build_mode = 0;
-
 	while (!end)
 	{
 		// Real-time clock system
@@ -160,33 +162,14 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
         tick = 0;
 
         next_step(calccity);
-
-        // Display map
-		display_large_map(calccity, camera, map);
-		display_around(calccity, camera);
+        
+        dclear(C_WHITE);
+        main_display(calccity, camera, map, 1);
+        dupdate();
 
 		// Get and manage input
 		key = rtc_key();
-		keyboard_managment(calccity, camera, key);
-
-		// Open the menu
-		switch (calccity->menu)
-		{	
-			// Tax and funds
-			case 4:
-				menu_4(calccity);
-				break;
-
-			case 5:
-				menu_5(calccity);
-				break;
-
-			// Options
-			case 6:
-				end = menu_6(calccity);
-				break;
-		}
-		calccity->menu = 0;
+		end = keyboard_managment(calccity, camera, map, key);
 	}
 
 	// Free timer
@@ -194,8 +177,10 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 }
 
 
-void keyboard_managment(struct calccity *calccity, struct camera *camera, const int key)
+int keyboard_managment(struct calccity *calccity, struct camera *camera, struct map *map, const int key)
 {
+
+	int end = 0;
 	switch (key)
 	{
 		case KEY_UP:
@@ -204,12 +189,12 @@ void keyboard_managment(struct calccity *calccity, struct camera *camera, const 
 			break;
 		
 		case KEY_RIGHT:
-			if (camera->cursor_x < 14) camera->cursor_x ++;
+			if (camera->cursor_x < floor(120 / camera->cursor_size[0]) - 1) camera->cursor_x ++;
 			else if (camera->x < 42) camera->x ++;
 			break;
 
 		case KEY_DOWN:
-			if (camera->cursor_y < 6) camera->cursor_y ++;
+			if (camera->cursor_y < floor(57 / camera->cursor_size[1]) - 1) camera->cursor_y ++;
 			else if (camera->y < 46) camera->y ++;
 			break;
 
@@ -218,29 +203,95 @@ void keyboard_managment(struct calccity *calccity, struct camera *camera, const 
 			else if (camera->x > 0) camera->x --;
 			break;
 
-
 		case KEY_F1:
-			calccity->menu = 1;
+			int build_mode = 0;
+			struct building selected_building = menu_1(calccity, camera, map, &build_mode);
+			
+			if (build_mode)
+				build(calccity, camera, map, &selected_building);
 			break;
 
 		case KEY_F2:
-			calccity->menu = 2;
-			break;
-
-		case KEY_F3:
-			calccity->menu = 3;
 			break;
 
 		case KEY_F4:
-			calccity->menu = 4;
+			menu_4(calccity);
 			break;
 
 		case KEY_F5:
-			calccity->menu = 5;
+			menu_5(calccity);
 			break;
 
 		case KEY_F6:
-			calccity->menu = 6;
+			end = menu_6(calccity);
 			break;
 	}
+	return end;
+}
+
+
+void build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building)
+{
+	// Timer initialisation
+	static volatile int tick = 1;
+	int t = timer_configure(TIMER_ANY, ENGINE_TICK*1000, GINT_CALL(callback_tick, &tick));
+	if (t >= 0) timer_start(t);
+
+	// Adjust cursor size
+	camera->cursor_size[0] = building->size[0] * 15;
+	camera->cursor_size[1] = building->size[1] * 15;
+	camera->cursor_x = 1;
+	camera->cursor_y = 1;
+
+	int key = 0, end = 0;
+	
+	while (!end)
+	{
+		// Real-time clock system
+        while (!tick) sleep();
+        tick = 0;
+
+        next_step(calccity);
+
+        dclear(C_WHITE);
+        main_display(calccity, camera, map, 1);
+
+        dprint_opt(4, 8, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d %d,%d", building->cost, building->size[0], building->size[1]);
+        dprint_opt(4, 15, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building->name);
+        dupdate();
+
+        key = rtc_key();
+        switch (key)
+        {
+        	case KEY_UP:
+				if (camera->cursor_y > 0) camera->cursor_y --;
+				else if (camera->y > 0) camera->y --;
+				break;
+		
+			case KEY_RIGHT:
+				if (camera->cursor_x < floor(120 / camera->cursor_size[0]) - 1) camera->cursor_x ++;
+				else if (camera->x < 42) camera->x ++;
+				break;
+
+			case KEY_DOWN:
+				if (camera->cursor_y < floor(57 / camera->cursor_size[1]) - 1) camera->cursor_y ++;
+				else if (camera->y < 46) camera->y ++;
+				break;
+
+			case KEY_LEFT:
+				if (camera->cursor_x > 0) camera->cursor_x --;
+				else if (camera->x > 0) camera->x --;
+				break;
+		
+			case KEY_ALPHA:
+				end = 1;
+				break;
+
+			case KEY_SHIFT:
+				end = 1;
+				break;
+		}
+	}
+
+	if (t >= 0) timer_stop(t);
 }

@@ -1,28 +1,43 @@
 #ifndef _CALCCITY_H
 #define _CALCCITY_H
 
-#include <gint/std/stdlib.h>
+#include <stdlib.h>
 
 struct calccity
 {
-	// human's statistics = {happyness, health, education, housing, work, food} 
-	unsigned long humans[6];
 
-	// population evolution = {population, birth_rate, death_rate, immigration, emigration}
-	unsigned long population[5];
+	// main statistics
+	/* 
+	housing,
+	health,
+	education,
+	food,
+	work,
+	transport,
 
-	// trade statistics = {import, export, production, commercial, industrial, annual_cost}
-	unsigned long trade[6];
+	crime,
+	firehazard,
+	nuclearhazard,
+	pollution,
 
-	// production = {water, power}
-	unsigned long production[2];
+	commercial,
+	industrial,
+	production,
+	import,
+	export,
+	annual_cost,
+	
+	water_consumption,
+	power_consumption,
+	power_supply,
+	grabage
+	graves,
+	*/
+	unsigned long stat[21];
 
-	// consumption = {water, power}
-	unsigned long consumption[2];
-
-	// some others statistics = {treasure, crime, safety, fire_hazard, nuclear_hazard, pollution, transport, grabage, graves}
+	// some others statistics = {treasure, population, safety, hapyness, birth_rate, death_rate, immigration, emigration, water_supply}
 	unsigned long misc[9];
-
+	
 	// taxes in percents on {housing, trade, industry, export}
 	unsigned int taxes[4];
 
@@ -49,6 +64,7 @@ struct camera
 	int zoom;
 
 	int cursor_x, cursor_y;
+	int cursor_size[2];
 };
 
 
@@ -58,6 +74,53 @@ struct map
 };
 
 
+struct building
+{
+	char *name;
+	
+	unsigned char *id;
+	int cost;
+	unsigned char size[2];
+
+	/* 
+	housing,
+	health,
+	education,
+	food,
+	work,
+	transport,
+
+	crime,
+	firehazard,
+	nuclearhazard,
+	pollution,
+
+	commercial,
+	industrial,
+	production,
+	import,
+	export,
+	annual_cost,
+	
+	water_consumption,
+	power_consumption,
+	power_supply,
+	grabage
+	graves,
+	*/
+	unsigned int stat[21];
+
+	// commercial, industrial, export
+	unsigned int taxes[3];
+
+	// police, firemen, education, heathcare
+	unsigned int funds[4];
+
+};
+
+
 #define ENGINE_TICK 100
+
+static const struct building buildings[41];
 
 #endif /* _CALCCITY_H */

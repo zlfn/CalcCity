@@ -20,7 +20,10 @@ void next_step(struct calccity *calccity);
 // main_loop : game main loop
 void main_loop(struct calccity *calccity, struct camera *camera, struct map *map);
 
-// keyboard_managment : get the key and manage input
-void keyboard_managment(struct calccity *calccity, struct camera *camera, const int key);
+// keyboard_managment : get the key, manage input and open menus
+int keyboard_managment(struct calccity *calccity, struct camera *camera, struct map *map, const int key);
+
+// build : manage the build
+void build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building);
 
 #endif /* _CORE_H */

@@ -24,6 +24,8 @@ set(ASSETS_fx
   assets-fx/large_water.png
   assets-fx/title.png
   assets-fx/fn_keys.png
+  assets-fx/fn_1.png
+  assets-fx/fn_2.png
 )
 
 set(ASSETS_cg)
