@@ -8,10 +8,10 @@
 struct building menu_1(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode)
 {
 	extern const bopti_image_t img_fn_1;
-	int key = 0, x = 0, y = 0;
+	int key = 0, end = 0, x = 0, y = 0;
 
 	struct building default_building = {
-		.name = "",
+		.name = "TEST",
 		.id = (unsigned char []){0},
 		.cost = 0,
 		.size = {1, 1},
@@ -20,14 +20,11 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 		.funds = {0}
 	};
 
-	while (key != KEY_ALPHA)
+	while (!end)
 	{
 		dclear(C_WHITE);
-		display_large_map(calccity, camera, map);
-		display_around(calccity, camera, 0);
+		main_display(calccity, camera, map, 0);
 		drect(3, 57, 19, 64, C_INVERT);
-
-
 		dimage(3, 11, &img_fn_1);
 		drect(9 * x + 4, 9 * y + 12, 9 * x + 4 + 7, 9 * y + 12 + 7, C_INVERT);
 		dupdate();
@@ -52,14 +49,25 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 				if (x < 2) x ++;
 				break;
 
+			case KEY_ALPHA:
+				end = 2;
+				break;
+
 			case KEY_SHIFT:
-				*build_mode = 1;
-				return buildings[x + y * 3];
+				end = 1;
 				break;
 		}
 	}
-	*build_mode = 0;
-	return default_building;
+	if (end == 1)
+	{
+		*build_mode = 1;
+		return buildings[x + y * 3];
+	}
+	else
+	{
+		*build_mode = 0;
+		return default_building;
+	}
 }
 
 

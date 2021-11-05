@@ -207,7 +207,7 @@ int keyboard_managment(struct calccity *calccity, struct camera *camera, struct 
 			int build_mode = 0;
 			struct building selected_building = menu_1(calccity, camera, map, &build_mode);
 			
-			if (build_mode)
+			if (build_mode == 1)
 				build(calccity, camera, map, &selected_building);
 			break;
 
@@ -256,8 +256,8 @@ void build(struct calccity *calccity, struct camera *camera, struct map *map, st
         dclear(C_WHITE);
         main_display(calccity, camera, map, 1);
 
-        dprint_opt(4, 8, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d %d,%d", building->cost, building->size[0], building->size[1]);
-        dprint_opt(4, 15, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building->name);
+        dprint_opt(4, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d %d,%d", building->cost, building->size[0], building->size[1]);
+        dprint_opt(4, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building->name);
         dupdate();
 
         key = rtc_key();
@@ -294,4 +294,9 @@ void build(struct calccity *calccity, struct camera *camera, struct map *map, st
 	}
 
 	if (t >= 0) timer_stop(t);
+
+	camera->cursor_size[0] = 8;
+	camera->cursor_size[1] = 8;
+	camera->cursor_x = 1;
+	camera->cursor_y = 1;
 }
