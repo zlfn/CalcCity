@@ -10,6 +10,16 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 	extern const bopti_image_t img_fn_1;
 	int key = 0, x = 0, y = 0;
 
+	struct building default_building = {
+		.name = "",
+		.id = (unsigned char []){0},
+		.cost = 0,
+		.size = {1, 1},
+		.stat = {0},
+		.taxes = {0},
+		.funds = {0}
+	};
+
 	while (key != KEY_ALPHA)
 	{
 		dclear(C_WHITE);
@@ -21,8 +31,6 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 		dimage(3, 11, &img_fn_1);
 		drect(9 * x + 4, 9 * y + 12, 9 * x + 4 + 7, 9 * y + 12 + 7, C_INVERT);
 		dupdate();
-
-		struct building default_building = buildings[x + 3 * y];
 
 		key = rtc_key();
 
