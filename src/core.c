@@ -175,12 +175,13 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 		// Get and manage input
 		key = rtc_key();
-		end = keyboard_managment(camera, key);
+		keyboard_managment(camera, key);
 
 		// Menu gestion
 		switch (key)
 		{
 			case KEY_F1: case KEY_F2:
+				camera->zoom = 0;
 				exit_build_mode(camera, &build_mode);
 
 				if (key == KEY_F1) building = menu_12(calccity, camera, map, &build_mode, 1);
@@ -214,8 +215,8 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 			// Build validation
 			if (key == KEY_SHIFT && can_build(calccity, camera, map, &building))
 			{
-				unsigned short loc_x = building.size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
-				unsigned short loc_y = building.size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+				unsigned short loc_x = building.size[0] * floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
+				unsigned short loc_y = building.size[1] * floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
 				int index = 0;
 				for (int y = loc_y; y < loc_y + building.size[1]; y ++)
 				{
@@ -236,40 +237,55 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 }
 
 
-int keyboard_managment(struct camera *camera, const int key)
+void keyboard_managment(struct camera *camera, const int key)
 {
-
-	int end = 0;
 	switch (key)
 	{
 		case KEY_UP:
-			if (camera->cursor_y > 0) camera->cursor_y --;
+			if (!camera->zoom && camera->cursor_y > 0) camera->cursor_y --;
 			else if (camera->y > 0) camera->y --;
 			break;
 		
 		case KEY_RIGHT:
 			if (camera->cursor_x < 14) camera->cursor_x ++;
-			else if (camera->x < 42) camera->x ++;
+			else
+			{
+				if (!camera->zoom && camera->x < 42) camera->x ++;
+				if (camera->zoom && camera->x < 35) camera->x ++;
+			}
 			break;
 
 		case KEY_DOWN:
 			if (camera->cursor_y < 6) camera->cursor_y ++;
-			else if (camera->y < 46) camera->y ++;
+			else
+			{
+				if (!camera->zoom && camera->y < 46) camera->y ++;
+				if (camera->zoom && camera->y < 43) camera->y ++;
+			}
 			break;
 
 		case KEY_LEFT:
-			if (camera->cursor_x > 0) camera->cursor_x --;
+			if (!camera->zoom && camera->cursor_x > 0) camera->cursor_x --;
 			else if (camera->x > 0) camera->x --;
 			break;
+
+		case KEY_PLUS:
+			camera->zoom = 0;
+			break;
+
+		case KEY_MINUS:
+			if (camera->x > 35) camera->x = 35;
+			if (camera->y > 43) camera->y = 43;
+			camera->zoom = 1;
+			break;
 	}
-	return end;
 }
 
 
 bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building)
 {
-	unsigned short loc_x = building->size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
-	unsigned short loc_y = building->size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+	unsigned short loc_x = building->size[0] * floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
+	unsigned short loc_y = building->size[1] * floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
 
 	// Not enougth money
 	if (calccity->misc[0] < building->cost)

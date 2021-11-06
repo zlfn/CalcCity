@@ -22,6 +22,7 @@ set(ASSETS)
 set(ASSETS_fx
   assets-fx/calccity.png
   assets-fx/large_tileset.png
+  assets-fx/mini_tileset.png
   assets-fx/large_water.png
   assets-fx/title.png
   assets-fx/fn_keys.png

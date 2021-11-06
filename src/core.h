@@ -17,11 +17,11 @@ int rtc_key(void);
 // next_step : compute in-game time
 void next_step(struct calccity *calccity);
 
-// main_loop : game main loop
+// main_loop : game main loop, manage key, menu, map actualization and building
 void main_loop(struct calccity *calccity, struct camera *camera, struct map *map);
 
 // keyboard_managment : get the key, manage input and open menus
-int keyboard_managment(struct camera *camera, const int key);
+void keyboard_managment(struct camera *camera, const int key);
 
 // can_build : test if the build is legit
 bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building);

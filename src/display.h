@@ -13,6 +13,9 @@ void display_main(struct calccity *calccity, struct camera *camera, struct map *
 // display_large_map : display the current state of the large map
 void display_large_map(struct calccity *calccity, struct camera *camera, struct map *map);
 
+// display_mini_map : display the current state of the mini map
+void display_mini_map(struct camera *camera, struct map *map);
+
 // display_around : display the screen frame and cursor
 void display_around(struct calccity *calccity, struct camera *camera, const int disp_cursor);
 

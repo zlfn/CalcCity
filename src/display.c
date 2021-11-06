@@ -19,8 +19,16 @@ void title_screen(void)
 void display_main(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor)
 {
     // Display map
-	display_large_map(calccity, camera, map);
-	display_around(calccity, camera, disp_cursor);
+    if (camera->zoom == 0)
+	{
+		display_large_map(calccity, camera, map);
+		display_around(calccity, camera, disp_cursor);
+	}
+	else
+	{
+		display_mini_map(camera, map);
+		display_around(calccity, camera, 0);
+	}
 }
 
 
@@ -34,6 +42,7 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 		for (int x = 0; x < 8; x ++)
 		{
 			int cam_x = x + camera->x, cam_y = y + camera->y;
+
 			// Water
 			if (cam_y > 49 || cam_x > 49 || map->data[cam_y][cam_x] == 139) 
 				dsubimage(3 + x * 15, y * 15, &img_large_water, 15 * calccity->blinker, 0, 15 * (calccity->blinker + 1), 15, DIMAGE_NONE);
@@ -41,15 +50,34 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 			{
 				unsigned tile_id = map->data[cam_y][cam_x];
 				unsigned int tile_x = 15 * (tile_id % 10);
-                unsigned int tile_y = 15 * (tile_id / 10);
-
-                dsubimage(3 + x * 15, y * 15, &img_large_tileset, tile_x, tile_y, 15, 15, DIMAGE_NONE);
+				unsigned int tile_y = 15 * (tile_id / 10);
+				
+				dsubimage(3 + x * 15, y * 15, &img_large_tileset, tile_x, tile_y, 15, 15, DIMAGE_NONE);
 			}
 		}
 	}
 
 }
 
+
+void display_mini_map(struct camera *camera, struct map *map)
+{
+	extern const bopti_image_t img_mini_tileset;
+
+	for (int y = 0; y < 7; y ++)
+	{
+		for (int x = 0; x < 15; x ++)
+		{
+			int cam_x = x + camera->x, cam_y = y + camera->y;
+
+			unsigned tile_id = map->data[cam_y][cam_x];
+			unsigned int tile_x = 8 * (tile_id % 10);
+			unsigned int tile_y = 8 * (tile_id / 10);
+
+			dsubimage(3 + x * 8, y * 8, &img_mini_tileset, tile_x, tile_y, 8, 8, DIMAGE_NONE);
+		}
+	}
+}
 
 void display_around(struct calccity *calccity, struct camera *camera, const int disp_cursor)
 {

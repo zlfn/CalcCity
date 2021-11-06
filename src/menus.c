@@ -233,13 +233,13 @@ void menu_5(struct calccity *calccity)
 
 		for (int i = 0; i < 8; i ++)
 		{
-			if (values[i + scroll] < 0)
+			if (i + scroll == 0 || i + scroll == 9 || i + scroll == 14 || i + scroll == 21)
 			{
-				drect(5, 7 + i * 7, 127, 13 + i * 7, C_BLACK);
-				dtext(12, 8 + i * 7, C_WHITE, names[i + scroll]);
+				drect(5, 7 * i + 7, 127, 7 * i + 13, C_BLACK);
+				dtext(12, 7 * i + 8, C_WHITE, names[i + scroll]);
 			}
 			else
-				dprint(7, 8 + i * 7, C_BLACK, "%s %lu", names[i + scroll], values[i + scroll]);
+				dprint(7, 7 * i + 8, C_BLACK, "%s %lu", names[i + scroll], values[i + scroll]);
 		}
 
 		dupdate();
