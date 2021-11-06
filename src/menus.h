@@ -4,8 +4,8 @@
 #include "calccity.h"
 #include "core.h"
 
-// menu_1 : building 1
-struct building menu_1(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode);
+// menu_12 : buildings
+struct building menu_12(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode, const int menu);
 
 // menu_4 : tax and funds
 void menu_4(struct calccity *calccity);

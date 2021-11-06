@@ -5,32 +5,35 @@
 #include "menus.h"
 
 
-struct building menu_1(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode)
+struct building menu_12(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode, const int menu)
 {
 	extern const bopti_image_t img_fn_1;
-	int key = 0, end = 0, x = 0, y = 0;
+	extern const bopti_image_t img_fn_2;
+	extern const struct building buildings[41];
 
-	struct building default_building = {
-		.name = "TEST",
-		.id = (unsigned char []){0},
-		.cost = 0,
-		.size = {1, 1},
-		.stat = {0},
-		.taxes = {0},
-		.funds = {0}
-	};
+	int key = 0, end = 0, x = 0, y = 0;
 
 	while (!end)
 	{
 		dclear(C_WHITE);
-		main_display(calccity, camera, map, 0);
-		drect(3, 57, 19, 64, C_INVERT);
-		dimage(3, 11, &img_fn_1);
-		drect(9 * x + 4, 9 * y + 12, 9 * x + 4 + 7, 9 * y + 12 + 7, C_INVERT);
+		display_main(calccity, camera, map, 0);
+		
+		if (menu == 1)
+		{
+			drect(3, 57, 19, 64, C_INVERT);
+			dimage(3, 11, &img_fn_1);
+			drect(9 * x + 4, 9 * y + 12, 9 * x + 11, 9 * y + 19, C_INVERT);
+		}
+		else
+		{
+			drect(21, 57, 39, 64, C_INVERT);
+			dimage(20, 11, &img_fn_2);
+			drect(9 * x + 21, 9 * y + 12, 9 * x + 28, 9 * y + 19, C_INVERT);
+
+		}
 		dupdate();
 
 		key = rtc_key();
-
 		switch (key)
 		{
 			case KEY_UP:
@@ -46,7 +49,7 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 				break;
 
 			case KEY_RIGHT:
-				if (x < 2) x ++;
+				if (x < (1 + menu)) x ++;
 				break;
 
 			case KEY_ALPHA:
@@ -58,16 +61,22 @@ struct building menu_1(struct calccity *calccity, struct camera *camera, struct 
 				break;
 		}
 	}
+
 	if (end == 1)
 	{
 		*build_mode = 1;
-		return buildings[x + y * 3];
+		if (menu == 1)
+			return buildings[x + y * 3];
+		else
+			return buildings[15 + x + y * 4];
 	}
 	else
 	{
 		*build_mode = 0;
+		struct building default_building = {0};
 		return default_building;
 	}
+
 }
 
 
@@ -179,7 +188,7 @@ void menu_5(struct calccity *calccity)
 		switch (i)
 		{
 			case 0: case 9: case 14: case 21:
-				values[i] = -1;
+				values[i] = 0;
 				offset ++;
 				break;
 

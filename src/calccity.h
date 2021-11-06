@@ -75,11 +75,9 @@ struct map
 
 
 struct building
-{
-	char *name;
-	
+{	
 	unsigned char *id;
-	int cost;
+	long unsigned int cost;
 	unsigned char size[2];
 
 	/* 
@@ -116,11 +114,12 @@ struct building
 	// police, firemen, education, heathcare
 	unsigned int funds[4];
 
+	char *name;
 };
 
 
 #define ENGINE_TICK 100
 
-static const struct building buildings[41];
+extern const struct building buildings[41];
 
 #endif /* _CALCCITY_H */

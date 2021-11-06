@@ -8,12 +8,15 @@
 void title_screen(void);
 
 // main_display : the general display function
-void main_display(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor);
+void display_main(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor);
 
 // display_large_map : display the current state of the large map
 void display_large_map(struct calccity *calccity, struct camera *camera, struct map *map);
 
 // display_around : display the screen frame and cursor
 void display_around(struct calccity *calccity, struct camera *camera, const int disp_cursor);
+
+// display_message : display the given message with lines breaks
+void display_message(char* message);
 
 #endif /* _DISPLAY_H */

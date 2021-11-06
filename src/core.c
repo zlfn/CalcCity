@@ -153,7 +153,8 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 	int t = timer_configure(TIMER_ANY, ENGINE_TICK*1000, GINT_CALL(callback_tick, &tick));
 	if (t >= 0) timer_start(t);
 
-	int end = 0, key = 0;
+	struct building building = {0};
+	int end = 0, key = 0, build_mode = 0;
 
 	while (!end)
 	{
@@ -161,15 +162,73 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
         while (!tick) sleep();
         tick = 0;
 
-        next_step(calccity);
+        if (!build_mode) next_step(calccity);
         
         dclear(C_WHITE);
-        main_display(calccity, camera, map, 1);
+        display_main(calccity, camera, map, 1);
+        if (build_mode)
+        {
+        	dprint_opt(4, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d", building.cost);
+        	dprint_opt(4, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building.name);
+    	}
         dupdate();
 
 		// Get and manage input
 		key = rtc_key();
-		end = keyboard_managment(calccity, camera, map, key);
+		end = keyboard_managment(camera, key);
+
+		// Menu gestion
+		switch (key)
+		{
+			case KEY_F1: case KEY_F2:
+				exit_build_mode(camera, &build_mode);
+
+				if (key == KEY_F1) building = menu_12(calccity, camera, map, &build_mode, 1);
+				if (key == KEY_F2) building = menu_12(calccity, camera, map, &build_mode, 2);
+				if (build_mode)
+				{
+					camera->cursor_size[0] = building.size[0] * 15;
+					camera->cursor_size[1] = building.size[1] * 15;
+				}
+				break;
+
+			case KEY_F4:
+				menu_4(calccity);
+				break;
+
+			case KEY_F5:
+				menu_5(calccity);
+				break;
+
+			case KEY_F6:
+				end = menu_6(calccity);
+				break;
+		}
+
+		if (build_mode)
+		{	
+			// Build annulation
+			if (key == KEY_ALPHA)
+				exit_build_mode(camera, &build_mode);
+
+			// Build validation
+			if (key == KEY_SHIFT && can_build(calccity, camera, map, &building))
+			{
+				unsigned short loc_x = building.size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
+				unsigned short loc_y = building.size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+				int index = 0;
+				for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+				{
+					for (int x = loc_x; x < loc_x + building.size[0]; x ++)
+					{
+						map->data[y][x] = building.id[index];
+						index ++;
+					}
+				}
+				calccity->misc[0] -= building.cost;
+			}
+
+		}
 	}
 
 	// Free timer
@@ -177,7 +236,7 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 }
 
 
-int keyboard_managment(struct calccity *calccity, struct camera *camera, struct map *map, const int key)
+int keyboard_managment(struct camera *camera, const int key)
 {
 
 	int end = 0;
@@ -189,12 +248,12 @@ int keyboard_managment(struct calccity *calccity, struct camera *camera, struct 
 			break;
 		
 		case KEY_RIGHT:
-			if (camera->cursor_x < floor(120 / camera->cursor_size[0]) - 1) camera->cursor_x ++;
+			if (camera->cursor_x < 14) camera->cursor_x ++;
 			else if (camera->x < 42) camera->x ++;
 			break;
 
 		case KEY_DOWN:
-			if (camera->cursor_y < floor(57 / camera->cursor_size[1]) - 1) camera->cursor_y ++;
+			if (camera->cursor_y < 6) camera->cursor_y ++;
 			else if (camera->y < 46) camera->y ++;
 			break;
 
@@ -202,101 +261,52 @@ int keyboard_managment(struct calccity *calccity, struct camera *camera, struct 
 			if (camera->cursor_x > 0) camera->cursor_x --;
 			else if (camera->x > 0) camera->x --;
 			break;
-
-		case KEY_F1:
-			int build_mode = 0;
-			struct building selected_building = menu_1(calccity, camera, map, &build_mode);
-			
-			if (build_mode == 1)
-				build(calccity, camera, map, &selected_building);
-			break;
-
-		case KEY_F2:
-			break;
-
-		case KEY_F4:
-			menu_4(calccity);
-			break;
-
-		case KEY_F5:
-			menu_5(calccity);
-			break;
-
-		case KEY_F6:
-			end = menu_6(calccity);
-			break;
 	}
 	return end;
 }
 
 
-void build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building)
+bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building)
 {
-	// Timer initialisation
-	static volatile int tick = 1;
-	int t = timer_configure(TIMER_ANY, ENGINE_TICK*1000, GINT_CALL(callback_tick, &tick));
-	if (t >= 0) timer_start(t);
+	unsigned short loc_x = building->size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
+	unsigned short loc_y = building->size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
 
-	// Adjust cursor size
-	camera->cursor_size[0] = building->size[0] * 15;
-	camera->cursor_size[1] = building->size[1] * 15;
-	camera->cursor_x = 1;
-	camera->cursor_y = 1;
-
-	int key = 0, end = 0;
-	
-	while (!end)
+	// Not enougth money
+	if (calccity->misc[0] < building->cost)
 	{
-		// Real-time clock system
-        while (!tick) sleep();
-        tick = 0;
+		display_message("VOUS N'AVEZ PAS ASSEZ D'ARGENT POUR CONSTRUIRE.");
+		return false;
+	}
 
-        next_step(calccity);
 
-        dclear(C_WHITE);
-        main_display(calccity, camera, map, 1);
+	for (int y = loc_y; y < loc_y + building->size[1]; y ++)
+	{
+		for (int x = loc_x; x < loc_x + building->size[0]; x ++)
+		{
+			// Build on water
+			if (map->data[y][x] == 139)
+			{
+				display_message("VOUS NE POUVEZ PAS CONSTRUIRE SUR L'EAU.");
+				return false;
+			}
 
-        dprint_opt(4, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d %d,%d", building->cost, building->size[0], building->size[1]);
-        dprint_opt(4, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building->name);
-        dupdate();
+			// Build on another building
+			if (map->data[y][x] != 48 && map->data[y][x] != 49 && map->data[y][x] < 110)
+			{
+				display_message("VOUS NE POUVEZ PAS CONSTRUIRE SUR BATIMENT EXISTANT.");
+				return false;
+			}
 
-        key = rtc_key();
-        switch (key)
-        {
-        	case KEY_UP:
-				if (camera->cursor_y > 0) camera->cursor_y --;
-				else if (camera->y > 0) camera->y --;
-				break;
-		
-			case KEY_RIGHT:
-				if (camera->cursor_x < floor(120 / camera->cursor_size[0]) - 1) camera->cursor_x ++;
-				else if (camera->x < 42) camera->x ++;
-				break;
-
-			case KEY_DOWN:
-				if (camera->cursor_y < floor(57 / camera->cursor_size[1]) - 1) camera->cursor_y ++;
-				else if (camera->y < 46) camera->y ++;
-				break;
-
-			case KEY_LEFT:
-				if (camera->cursor_x > 0) camera->cursor_x --;
-				else if (camera->x > 0) camera->x --;
-				break;
-		
-			case KEY_ALPHA:
-				end = 1;
-				break;
-
-			case KEY_SHIFT:
-				end = 1;
-				break;
 		}
 	}
 
-	if (t >= 0) timer_stop(t);
+	return true;
+}
 
+
+void exit_build_mode(struct camera *camera, int *build_mode)
+{
+	*build_mode = 0;
 	camera->cursor_size[0] = 8;
 	camera->cursor_size[1] = 8;
-	camera->cursor_x = 1;
-	camera->cursor_y = 1;
 }

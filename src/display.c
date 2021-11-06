@@ -16,7 +16,7 @@ void title_screen(void)
 }
 
 
-void main_display(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor)
+void display_main(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor)
 {
     // Display map
 	display_large_map(calccity, camera, map);
@@ -55,6 +55,30 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 {
 	extern const bopti_image_t img_fn_keys;
 
+	// Date in the top-left corner
+	dprint_opt(4, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
+	
+	// Cursor
+	if (disp_cursor)
+	{
+
+		int offset_x = floor(camera->cursor_x / 2);
+		int offset_y = floor(camera->cursor_y / 2);
+
+		drect_border(8 * camera->cursor_x - offset_x + 3, 8 * camera->cursor_y - offset_y, 8 * (camera->cursor_x + 1) - offset_x + 3, 8 * (camera->cursor_y + 1) - offset_y , C_WHITE, 1, C_BLACK);
+
+		dline(8 * camera->cursor_x - offset_x + 6, 8 * camera->cursor_y - offset_y + 4, 8 * camera->cursor_x - offset_x + 8, 8 * camera->cursor_y - offset_y + 4, C_BLACK);
+		dline(8 * camera->cursor_x - offset_x + 7, 8 * camera->cursor_y - offset_y + 3, 8 * camera->cursor_x - offset_x + 7, 8 * camera->cursor_y - offset_y + 5, C_BLACK);		
+
+		if (camera->cursor_size[0] > 8 && camera->cursor_size[1] > 8)
+		{
+			unsigned short x = camera->cursor_size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1)) + 3;
+			unsigned short y = camera->cursor_size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+			drect_border(x, y, x + camera->cursor_size[0], y + camera->cursor_size[1], C_NONE, 1, C_BLACK);
+		}
+
+	}
+
 	// Functions keys
 	dimage(3, 57, &img_fn_keys);
 
@@ -63,18 +87,40 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 	dline(3, 56, 123, 56, C_BLACK);
 	dline(3, 0, 3, 56, C_BLACK);
 	dline(123, 0, 123, 56, C_BLACK);
+}
 
-	// Date in the top-left corner
-	dprint_opt(4, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
-	
-	// Cursor
-	if (disp_cursor)
-	{
-		int middle_x = floor(camera->cursor_size[0] / 2) + 3;
-		int middle_y = floor(camera->cursor_size[1] / 2);
-		drect_border(camera->cursor_size[0] * camera->cursor_x + 3, camera->cursor_size[1] * camera->cursor_y, camera->cursor_size[0] * camera->cursor_x + 3 + camera->cursor_size[0], camera->cursor_size[1] * camera->cursor_y + camera->cursor_size[1], C_WHITE, 1, C_BLACK);
-		dline(camera->cursor_size[0] * camera->cursor_x + middle_x - 1, camera->cursor_size[1] * camera->cursor_y + middle_y    , camera->cursor_size[0] * camera->cursor_x + middle_x + 1, camera->cursor_size[1] * camera->cursor_y + middle_y    , C_BLACK);
-		dline(camera->cursor_size[0] * camera->cursor_x + middle_x    , camera->cursor_size[1] * camera->cursor_y + middle_y - 1, camera->cursor_size[0] * camera->cursor_x + middle_x    , camera->cursor_size[1] * camera->cursor_y + middle_y + 1, C_BLACK);
-	}
+
+void display_message(char* message)
+{
+	dclear(C_WHITE);
+
+	drect(0, 0, 127, 6, C_BLACK);
+	dhline(0, C_BLACK);
+	dhline(63, C_BLACK);
+	dvline(0, C_BLACK);
+	dvline(127, C_BLACK);
+	dtext(42, 1, C_WHITE, "MESSAGE");
+
+	int total_offset = 0;
+    for (int i = 0; i < 5; i ++)
+    {
+        dtext_opt(3, 7 * i + 8, C_BLACK, C_WHITE, 0, 0, message + total_offset, 20);
+        
+        int offset = 0;
+        while (message[total_offset + offset] != '\0') offset += 1;
+
+        if (!offset) break;
+        else if (offset > 20) total_offset += 20;
+        else total_offset += offset;
+    }
+
+    dupdate();
+
+    int opt = GETKEY_DEFAULT & ~GETKEY_MOD_SHIFT & ~GETKEY_MOD_ALPHA & ~GETKEY_REP_ARROWS;
+	int timeout = 0;
+		
+    int key = 0;
+    while (key != KEY_ALPHA)
+    	key = getkey_opt(opt, &timeout).key;
 }
 

@@ -21,9 +21,12 @@ void next_step(struct calccity *calccity);
 void main_loop(struct calccity *calccity, struct camera *camera, struct map *map);
 
 // keyboard_managment : get the key, manage input and open menus
-int keyboard_managment(struct calccity *calccity, struct camera *camera, struct map *map, const int key);
+int keyboard_managment(struct camera *camera, const int key);
 
-// build : manage the build
-void build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building);
+// can_build : test if the build is legit
+bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building);
+
+// exit_build_mode : reset build mode and cusor
+void exit_build_mode(struct camera *camera, int *build_mode);
 
 #endif /* _CORE_H */
