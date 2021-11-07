@@ -514,10 +514,10 @@ void end_year(struct calccity *calccity)
 	dvline(0, C_BLACK);
 	dvline(127, C_BLACK);
 
-	int taxe_housing = calccity->taxes[0] / 100 * calccity->misc[1];
-	int taxe_trade = calccity->taxes[1] / 100 * calccity->stat[10];
-	int taxe_industry = calccity->taxes[2] / 100 * calccity->stat[11];
-	int taxe_export = calccity->taxes[3] / 100 * calccity->stat[14];
+	int taxe_housing = calccity->taxes[0] * calccity->misc[1] / 100;
+	int taxe_trade = calccity->taxes[1] * calccity->stat[10] / 100;
+	int taxe_industry = calccity->taxes[2] * calccity->stat[11] / 100;
+	int taxe_export = calccity->taxes[3] * calccity->stat[14] / 100;
 
 	int entry = taxe_housing + taxe_trade + taxe_industry + taxe_export;
 
@@ -529,7 +529,7 @@ void end_year(struct calccity *calccity)
 	dprint_opt(4, 43, C_BLACK, C_WHITE, 0, 0, "COUT ANNUEL %d", calccity->stat[15]);
 	dprint_opt(4, 50, C_BLACK, C_WHITE, 0, 0, "BILAN %d", entry - calccity->stat[15]);
 
-	calccity->misc[0] += entry - calccity->stat[15];
+	calccity->misc[0] = calccity->misc[0] + entry - calccity->stat[15];
 	if (calccity->misc[0] < 0) calccity->misc[0] = 0;
 
 	dupdate();
