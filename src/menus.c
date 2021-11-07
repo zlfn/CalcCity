@@ -9,7 +9,7 @@ struct building menu_12(struct calccity *calccity, struct camera *camera, struct
 {
 	extern const bopti_image_t img_fn_1;
 	extern const bopti_image_t img_fn_2;
-	extern const struct building buildings[41];
+	extern const struct building buildings[42];
 
 	int key = 0, end = 0, x = 0, y = 0;
 
@@ -64,15 +64,21 @@ struct building menu_12(struct calccity *calccity, struct camera *camera, struct
 
 	if (end == 1)
 	{
-		*build_mode = 1;
 		if (menu == 1)
+		{
+			*build_mode = x + y * 3;
 			return buildings[x + y * 3];
+		}
 		else
+		{
+			*build_mode = 15 + x + y * 4;
 			return buildings[15 + x + y * 4];
+		}
 	}
+
 	else
 	{
-		*build_mode = 0;
+		*build_mode = -1;
 		struct building default_building = {0};
 		return default_building;
 	}
@@ -149,10 +155,11 @@ void menu_5(struct calccity *calccity)
 	int opt = GETKEY_DEFAULT & GETKEY_REP_ARROWS;
 	int timeout = 0;
 
-	static const char *names[28] = {
+	static const char *names[27] = {
 			"GENERAL",
 		"ARGENT",
 		"POPULATION",
+		"BONHEUR",
 		"LOGEMENT",
 		"SANTE",
 		"EDUCATION",
@@ -172,39 +179,42 @@ void menu_5(struct calccity *calccity)
 		"EXPORT",
 		"COUT ANNUEL",
 			"DIVERS",
-		"CONSO. EAU",
-		"PRODU. EAU",
-		"CONSO. ENERGIE",
-		"PRODU. ENERGIE",
+		"EAU",
+		"ENERGIE",
 		"DECHETS",
 		"TOMBES"
 	};
 
-	long values[28] = {0};
+	long values[27] = {0};
 	int offset = 0;
 
-	for (int i = 0; i < 28; i ++)
+	for (int i = 0; i < 27; i ++)
 	{
 		switch (i)
 		{
-			case 0: case 9: case 14: case 21:
+			case 0: case 10: case 15: case 22:
 				values[i] = 0;
 				offset ++;
 				break;
 
-			case 1:
-				values[i] = calccity->misc[0];
+			case 1: case 2:
+				values[i] = calccity->misc[i - 1];
 				offset ++;
 				break;
 
-			case 2:
-				values[i] = calccity->misc[1];
+			case 3:
+				values[i] = calccity->stat[22];
 				offset ++;
 				break;
 
 			case 23:
-				values[i] = calccity->misc[8];
-				offset ++;
+				values[i] = calccity->stat[17] - calccity->stat[16];
+				offset --;
+				break;
+
+			case 24:
+				values[i] = calccity->stat[19] - calccity->stat[18];
+				offset --;
 				break;
 
 			default:
@@ -229,17 +239,17 @@ void menu_5(struct calccity *calccity)
 
 		// Scroll bar
 		dline(5, 6, 5, 63, C_BLACK);
-		drect(2, scroll + 8, 3, 8 + scroll + 33, C_BLACK);
+		drect(2, scroll + 8, 3, 8 + scroll + 34, C_BLACK);
 
 		for (int i = 0; i < 8; i ++)
 		{
-			if (i + scroll == 0 || i + scroll == 9 || i + scroll == 14 || i + scroll == 21)
+			if (i + scroll == 0 || i + scroll == 10 || i + scroll == 15 || i + scroll == 22)
 			{
 				drect(5, 7 * i + 7, 127, 7 * i + 13, C_BLACK);
 				dtext(12, 7 * i + 8, C_WHITE, names[i + scroll]);
 			}
 			else
-				dprint(7, 7 * i + 8, C_BLACK, "%s %lu", names[i + scroll], values[i + scroll]);
+				dprint(7, 7 * i + 8, C_BLACK, "%s %d", names[i + scroll], values[i + scroll]);
 		}
 
 		dupdate();
@@ -253,7 +263,7 @@ void menu_5(struct calccity *calccity)
 				break;
 
 			case KEY_DOWN:
-				if (scroll < 20) scroll ++;
+				if (scroll < 19) scroll ++;
 				break;
 		}
 

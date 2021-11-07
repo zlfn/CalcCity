@@ -15,7 +15,7 @@ void default_values(struct calccity *current_game, struct camera *camera, struct
 int rtc_key(void);
 
 // next_step : compute in-game time
-void next_step(struct calccity *calccity);
+void next_step(struct calccity *calccity, struct map *map);
 
 // main_loop : game main loop, manage key, menu, map actualization and building
 void main_loop(struct calccity *calccity, struct camera *camera, struct map *map);
@@ -28,5 +28,8 @@ bool can_build(struct calccity *calccity, struct camera *camera, struct map *map
 
 // exit_build_mode : reset build mode and cusor
 void exit_build_mode(struct camera *camera, int *build_mode);
+
+// update_stat : compute the new stat with buildings
+void update_stat(struct calccity *calccity, struct map *map);
 
 #endif /* _CORE_H */

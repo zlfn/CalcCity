@@ -24,6 +24,7 @@ set(ASSETS_fx
   assets-fx/large_tileset.png
   assets-fx/mini_tileset.png
   assets-fx/large_water.png
+  assets-fx/alerts.png
   assets-fx/title.png
   assets-fx/fn_keys.png
   assets-fx/fn_1.png

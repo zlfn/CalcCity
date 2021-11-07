@@ -8,45 +8,48 @@ struct calccity
 
 	// main statistics
 	/* 
-	housing,
-	health,
-	education,
-	food,
-	work,
-	transport,
+	0 housing,
+	1 health,
+	2 education,
+	3 food,
+	4 work,
+	5 transport,
 
-	crime,
-	firehazard,
-	nuclearhazard,
-	pollution,
+	6 crime,
+	7 firehazard,
+	8 nuclearhazard,
+	9 pollution,
 
-	commercial,
-	industrial,
-	production,
-	import,
-	export,
-	annual_cost,
+	10 commercial,
+	11 industrial,
+	12 production,
+	13 import,
+	14 export,
+	15 annual_cost,
 	
-	water_consumption,
-	power_consumption,
-	power_supply,
-	grabage
-	graves,
+	16 water_consumption,
+	17 water_supply,
+	18 power_consumption,
+	19 power_supply,
+	20 grabage,
+	21 graves,
+	22 happyness
 	*/
-	unsigned long stat[21];
+	int stat[23];
 
-	// some others statistics = {treasure, population, safety, hapyness, birth_rate, death_rate, immigration, emigration, water_supply}
-	unsigned long misc[9];
+	// some others statistics = {treasure, population, safety, population in, population out}
+	int misc[5];
 	
 	// taxes in percents on {housing, trade, industry, export}
-	unsigned int taxes[4];
+	int taxes[4];
 
 	// fund in percents on {police, fireman, education, heathcare}
-	unsigned int funds[4];
+	int funds[4];
 
 	// in-game time
 	int month, year;
-	int blinker;
+	int blinker_water;
+	int blinker_alert;
 	int tick;
 
 	// in-game options
@@ -71,55 +74,29 @@ struct camera
 struct map
 {
 	unsigned char data[50][50];
+
+	unsigned char id[50][50];
 };
 
 
 struct building
 {	
-	unsigned char *id;
-	long unsigned int cost;
+	char *id;
+	int cost;
 	unsigned char size[2];
 
-	/* 
-	housing,
-	health,
-	education,
-	food,
-	work,
-	transport,
-
-	crime,
-	firehazard,
-	nuclearhazard,
-	pollution,
-
-	commercial,
-	industrial,
-	production,
-	import,
-	export,
-	annual_cost,
-	
-	water_consumption,
-	power_consumption,
-	power_supply,
-	grabage
-	graves,
-	*/
-	unsigned int stat[21];
+	int stat[23];
 
 	// commercial, industrial, export
-	unsigned int taxes[3];
+	int taxes[3];
 
 	// police, firemen, education, heathcare
-	unsigned int funds[4];
+	int funds[4];
 
 	char *name;
 };
 
 
 #define ENGINE_TICK 100
-
-extern const struct building buildings[41];
 
 #endif /* _CALCCITY_H */

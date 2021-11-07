@@ -36,6 +36,7 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 {
 	extern const bopti_image_t img_large_tileset;
 	extern const bopti_image_t img_large_water;
+	extern const bopti_image_t img_alerts;
 
 	for (int y = 0; y < 4; y++)
 	{
@@ -45,7 +46,7 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 
 			// Water
 			if (cam_y > 49 || cam_x > 49 || map->data[cam_y][cam_x] == 139) 
-				dsubimage(3 + x * 15, y * 15, &img_large_water, 15 * calccity->blinker, 0, 15 * (calccity->blinker + 1), 15, DIMAGE_NONE);
+				dsubimage(3 + x * 15, y * 15, &img_large_water, 15 * calccity->blinker_water, 0, 15 * (calccity->blinker_water + 1), 15, DIMAGE_NONE);
 			else
 			{
 				unsigned tile_id = map->data[cam_y][cam_x];
@@ -53,10 +54,25 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 				unsigned int tile_y = 15 * (tile_id / 10);
 				
 				dsubimage(3 + x * 15, y * 15, &img_large_tileset, tile_x, tile_y, 15, 15, DIMAGE_NONE);
+
+				// Visual alerts in case of low energy and low water
+				if (calccity->animation && map->id[cam_y][cam_x] > 2 && map->data[cam_y][cam_x] < 79)
+				{
+					// Low water
+					if (calccity->stat[17] - calccity->stat[16] < 0 && calccity->blinker_alert == 0)
+						dsubimage(3 + x * 15, y * 15, &img_alerts, 15, 0, 15, 15, DIMAGE_NONE);
+
+					// Low energy
+					if (calccity->stat[19] - calccity->stat[18] < 0 && calccity->blinker_alert == 1)
+						dsubimage(3 + x * 15, y * 15, &img_alerts, 0, 0, 15, 15, DIMAGE_NONE);
+				}
 			}
 		}
 	}
 
+	unsigned short loc_x = floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
+	unsigned short loc_y = floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+	dprint_opt(3, 7, C_BLACK, C_WHITE, 0, 0, "%d", map->id[loc_y][loc_x]);
 }
 
 
