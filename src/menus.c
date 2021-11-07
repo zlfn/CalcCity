@@ -135,13 +135,13 @@ void menu_4(struct calccity *calccity)
 				break;
 
 			case KEY_LEFT:
-				if (choice < 5 && calccity->taxes[choice] > 0) calccity->taxes[choice] --;
-				if (choice >= 5 && calccity->funds[choice - 5] > 0) calccity->funds[choice - 5] --;
+				if (choice < 4 && calccity->taxes[choice] > 0) calccity->taxes[choice] --;
+				if (choice >= 4 && calccity->funds[choice - 4] > 0) calccity->funds[choice - 4] --;
 				break;
 
 			case KEY_RIGHT:
-				if (choice < 5 && calccity->taxes[choice] < 100) calccity->taxes[choice] ++;
-				if (choice >= 5 && calccity->funds[choice - 5] < 100) calccity->funds[choice - 5] ++;
+				if (choice < 4 && calccity->taxes[choice] < 100) calccity->taxes[choice] ++;
+				if (choice >= 4 && calccity->funds[choice - 4] < 100) calccity->funds[choice - 4] ++;
 				break;
 		}
 
@@ -168,8 +168,8 @@ void menu_5(struct calccity *calccity)
 		"TRANSPORT",
 			"SECURITE",
 		"CRIME",
-		"RISQUE INCENDIE",
-		"RISQUE NUCLEAIRE",
+		"INCENDIE",
+		"NUCLEAIRE",
 		"POLLUTION",
 			"ECONOMIE",
 		"COMMERCE",
@@ -182,7 +182,7 @@ void menu_5(struct calccity *calccity)
 		"EAU",
 		"ENERGIE",
 		"DECHETS",
-		"TOMBES"
+		"TOMBES",
 	};
 
 	long values[27] = {0};

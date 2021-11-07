@@ -32,4 +32,7 @@ void exit_build_mode(struct camera *camera, int *build_mode);
 // update_stat : compute the new stat with buildings
 void update_stat(struct calccity *calccity, struct map *map);
 
+// end_year : display the year's balance sheet
+void end_year(struct calccity *calccity);
+
 #endif /* _CORE_H */

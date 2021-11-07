@@ -147,9 +147,10 @@ void next_step(struct calccity *calccity, struct map *map)
 		calccity->month ++;
 		if (calccity->month > 12)
 		{
+			update_stat(calccity, map);
+			end_year(calccity);
 			calccity->month = 1;
 			calccity->year ++;
-			update_stat(calccity, map);
 		}
 	}
 }
@@ -204,6 +205,7 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 			case KEY_F4:
 				menu_4(calccity);
+				update_stat(calccity, map);
 				break;
 
 			case KEY_F5:
@@ -455,7 +457,12 @@ void update_stat(struct calccity *calccity, struct map *map)
 	calccity->stat[21] -= floor(calccity->misc[1] / 1000);
 
 	// Happyness
-	calccity->stat[22] = floor((calccity->misc[1] + calccity->stat[22] + calccity->stat[0] + calccity->stat[1] + calccity->stat[2] + calccity->stat[3] - calccity->stat[6] - calccity->stat[7] - calccity->stat[9] - 10 * calccity->taxes[0]) / calccity->misc[1]);
+	if (calccity->misc[1])
+		calccity->stat[22] = floor((calccity->misc[1] + calccity->stat[22] + calccity->stat[0] + calccity->stat[1] + calccity->stat[2] + calccity->stat[3] - calccity->stat[6] - calccity->stat[7] - calccity->stat[9] - 10 * calccity->taxes[0]) / calccity->misc[1]);
+
+
+	calccity->misc[3] = 0;
+	calccity->misc[4] = 0;
 
 	// Population out
 	if (calccity->stat[17] < 0 || calccity->stat[19] < 0 || calccity->stat[3] < 0) calccity->misc[4] += 20;
@@ -479,16 +486,58 @@ void update_stat(struct calccity *calccity, struct map *map)
 	if (calccity->stat[17] > 0 && calccity->stat[19] > 0)
 	{
 		for (int i = 0; i < 6; i ++)
-			if (calccity->stat[i] > 0) calccity->misc[3] += 10;
+			if (calccity->stat[i] > 0) calccity->misc[3] += 25;
 		
-		if (calccity->stat[6] < 0) calccity->misc[3] += 10;
-		if (calccity->stat[7] < 0) calccity->misc[3] += 10;
-		if (calccity->stat[9] < 0) calccity->misc[3] += 10;
+		if (calccity->stat[6] < 0) calccity->misc[3] += 20;
+		if (calccity->stat[7] < 0) calccity->misc[3] += 20;
+		if (calccity->stat[9] < 0) calccity->misc[3] += 20;
 
-		if (calccity->stat[12] > 0) calccity->misc[3] += 10;
+		if (calccity->stat[12] > 0) calccity->misc[3] += 20;
 		if (calccity->taxes[0] <= 10) calccity->misc[3] += 5;
 	}
 
 	calccity->misc[1] = calccity->misc[1] + calccity->misc[3] - calccity->misc[4];
 	if (calccity->misc[1] < 0) calccity->misc[1] = 0;
+}
+
+
+
+void end_year(struct calccity *calccity)
+{
+	dclear(C_WHITE);
+
+	drect(0, 0, 127, 6, C_BLACK);
+	dprint_opt(33, 1, C_WHITE, C_NONE, 0, 0, "BILAN %d", calccity->year);
+
+	dhline(0, C_BLACK);
+	dhline(63, C_BLACK);
+	dvline(0, C_BLACK);
+	dvline(127, C_BLACK);
+
+	int taxe_housing = calccity->taxes[0] / 100 * calccity->misc[1];
+	int taxe_trade = calccity->taxes[1] / 100 * calccity->stat[10];
+	int taxe_industry = calccity->taxes[2] / 100 * calccity->stat[11];
+	int taxe_export = calccity->taxes[3] / 100 * calccity->stat[14];
+
+	int entry = taxe_housing + taxe_trade + taxe_industry + taxe_export;
+
+	dprint_opt(4, 8, C_BLACK, C_WHITE, 0, 0, "TAXE HABITATION %d", taxe_housing);
+	dprint_opt(4, 15, C_BLACK, C_WHITE, 0, 0, "TAXE COMMERCE %d", taxe_trade);
+	dprint_opt(4, 22, C_BLACK, C_WHITE, 0, 0, "TAXE INDUSTRIE %d", taxe_industry);
+	dprint_opt(4, 29, C_BLACK, C_WHITE, 0, 0, "TAXE EXPORT %d", taxe_export);
+	dprint_opt(4, 36, C_BLACK, C_WHITE, 0, 0, "TOTAL %d", entry);
+	dprint_opt(4, 43, C_BLACK, C_WHITE, 0, 0, "COUT ANNUEL %d", calccity->stat[15]);
+	dprint_opt(4, 50, C_BLACK, C_WHITE, 0, 0, "BILAN %d", entry - calccity->stat[15]);
+
+	calccity->misc[0] += entry - calccity->stat[15];
+	if (calccity->misc[0] < 0) calccity->misc[0] = 0;
+
+	dupdate();
+
+	int key = 0;
+	int opt = GETKEY_DEFAULT & ~GETKEY_MOD_SHIFT & ~GETKEY_MOD_ALPHA & ~GETKEY_REP_ARROWS;
+	int timeout = 0;
+
+	while (key != KEY_ALPHA)
+		key = getkey_opt(opt, &timeout).key;
 }

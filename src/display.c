@@ -69,10 +69,6 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 			}
 		}
 	}
-
-	unsigned short loc_x = floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
-	unsigned short loc_y = floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
-	dprint_opt(3, 7, C_BLACK, C_WHITE, 0, 0, "%d", map->id[loc_y][loc_x]);
 }
 
 
