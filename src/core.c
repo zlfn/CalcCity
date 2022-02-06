@@ -153,6 +153,8 @@ void next_step(struct calccity *calccity, struct map *map)
 			calccity->year ++;
 		}
 	}
+
+	// Disasters gestion soon™
 }
 
 
@@ -178,14 +180,17 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
         display_main(calccity, camera, map, 1);
         if (build_mode >= 0)
         {
-        	dprint_opt(4, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d", building.cost);
-        	dprint_opt(4, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building.name);
+        	int width;
+        	dsize(building.name, NULL, &width, NULL);
+        	drect(4, 6, 5 + width, 17, C_WHITE);
+        	dprint_opt(5, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d", building.cost);
+        	dprint_opt(5, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building.name);
     	}
         dupdate();
 
 		// Get and manage input
 		key = rtc_key();
-		keyboard_managment(camera, key);
+		keyboard_managment(camera, key, build_mode);
 
 		// Menu gestion
 		switch (key)
@@ -228,6 +233,18 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 			{
 				unsigned short loc_x = building.size[0] * floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
 				unsigned short loc_y = building.size[1] * floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+
+				if (build_mode == 5 || build_mode == 8 || build_mode == 11 || build_mode == 27 || build_mode == 28 || build_mode == 29)
+				{
+					building = large_building(map, build_mode, &loc_x, &loc_y);
+					for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+					{
+						for (int x = loc_x; x < loc_x + building.size[0]; x ++)
+							map->id[y][x] = 0;
+					}
+					update_stat(calccity, map);
+				}
+				
 				unsigned char index = 0;
 				for (int y = loc_y; y < loc_y + building.size[1]; y ++)
 				{
@@ -250,7 +267,7 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 }
 
 
-void keyboard_managment(struct camera *camera, const int key)
+void keyboard_managment(struct camera *camera, const int key, const int build_mode)
 {
 	switch (key)
 	{
@@ -287,9 +304,12 @@ void keyboard_managment(struct camera *camera, const int key)
 			break;
 
 		case KEY_MINUS:
-			if (camera->x > 35) camera->x = 35;
-			if (camera->y > 43) camera->y = 43;
-			camera->zoom = 1;
+			if (build_mode == -1)
+			{
+				if (camera->x > 35) camera->x = 35;
+				if (camera->y > 43) camera->y = 43;
+				camera->zoom = 1;
+			}
 			break;
 	}
 }
@@ -341,22 +361,57 @@ void exit_build_mode(struct camera *camera, int *build_mode)
 }
 
 
-/*struct building get_building(const int id)
+struct building large_building(struct map *map, const int build_mode, short unsigned int *loc_x, short unsigned int *loc_y)
 {
 	extern const struct building buildings[42];
-
-	for (int i = 0; i < 42; i ++)
+	const short unsigned int Y[16] = {*loc_y - 1, *loc_y - 1, *loc_y, *loc_y, *loc_y - 1, *loc_y - 1, *loc_y, *loc_y, *loc_y, *loc_y, *loc_y + 1, *loc_y + 1, *loc_y, *loc_y, *loc_y + 1, *loc_y + 1};
+	const short unsigned int X[16] = {*loc_x - 1, *loc_x, *loc_x - 1, *loc_x, *loc_x, *loc_x + 1, *loc_x, *loc_x + 1, *loc_x - 1, *loc_x, *loc_x - 1, *loc_x, *loc_x, *loc_x + 1, *loc_x, *loc_x + 1};
+	
+	for (int i = 0; i < 4; i ++)
 	{
-		for (int j = 0; buildings[i].id[j] != -1; j ++)
+		int check = 0;
+		for (int j = 0; j < 4; j ++)
 		{
-			if (buildings[i].id[j] == id)
-				return buildings[i];
+			short unsigned int y = Y[4 * i + j];
+			short unsigned int x = X[4 * i + j];
+			if (map->id[y][x] == build_mode) check ++;
+		}
+
+		if (check == 3)
+		{
+			*loc_x = X[4 * i];
+			*loc_y = Y[4 * i];
+
+			switch (build_mode)
+			{
+				case 5:
+					return buildings[35];
+					break;
+				
+				case 8:
+					return buildings[36];
+					break;
+				
+				case 11:
+					return buildings[37];
+					break;
+				
+				case 27:
+					return buildings[38];
+					break;
+				
+				case 28:
+					return buildings[39];
+					break;
+
+				case 29:
+					return buildings[40];
+					break;
+			}
 		}
 	}
-
-	struct building building = {0};
-	return building;
-}*/
+	return buildings[build_mode];
+}
 
 
 void update_stat(struct calccity *calccity, struct map *map)

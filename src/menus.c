@@ -5,7 +5,7 @@
 #include "menus.h"
 
 
-struct building menu_12(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode, const int menu)
+struct building menu_12(struct calccity *calccity, struct camera *camera, struct map *map, int *build_mode, int menu)
 {
 	extern const bopti_image_t img_fn_1;
 	extern const bopti_image_t img_fn_2;
@@ -58,6 +58,33 @@ struct building menu_12(struct calccity *calccity, struct camera *camera, struct
 
 			case KEY_SHIFT:
 				end = 1;
+				break;
+
+			case KEY_F1:
+				menu = 1;
+				x = 0;
+				y = 0;
+				break;
+
+			case KEY_F2:
+				menu = 2;
+				x = 0;
+				y = 0;
+				break;
+
+			case KEY_F4:
+				menu_4(calccity);
+				end = 2;
+				break;
+
+			case KEY_F5:
+				menu_5(calccity);
+				end = 2;
+				break;
+
+			case KEY_F6:
+				menu_6(calccity);
+				end = 2;
 				break;
 		}
 	}
@@ -246,10 +273,13 @@ void menu_5(struct calccity *calccity)
 			if (i + scroll == 0 || i + scroll == 10 || i + scroll == 15 || i + scroll == 22)
 			{
 				drect(5, 7 * i + 7, 127, 7 * i + 13, C_BLACK);
-				dtext(12, 7 * i + 8, C_WHITE, names[i + scroll]);
+				dtext(20, 7 * i + 8, C_WHITE, names[i + scroll]);
 			}
 			else
-				dprint(7, 7 * i + 8, C_BLACK, "%s %d", names[i + scroll], values[i + scroll]);
+			{
+				dprint(7, 7 * i + 8, C_BLACK, "%s", names[i + scroll]);
+				dprint(60, 7 * i + 8, C_BLACK, "%d", values[i + scroll]);
+			}
 		}
 
 		dupdate();
@@ -307,7 +337,7 @@ int menu_6(struct calccity *calccity)
 		else
 			dtext(85, 16, C_BLACK, "off");
 
-		dprint(97, 23, C_BLACK, "%d%%", prcnt + 1);
+		dprint(85, 23, C_BLACK, "%d%%", prcnt + 1);
 
 
 		dtext(2, 9 + choice * 7, C_BLACK, ">");

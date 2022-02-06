@@ -21,13 +21,16 @@ void next_step(struct calccity *calccity, struct map *map);
 void main_loop(struct calccity *calccity, struct camera *camera, struct map *map);
 
 // keyboard_managment : get the key, manage input and open menus
-void keyboard_managment(struct camera *camera, const int key);
+void keyboard_managment(struct camera *camera, const int key, const int build_mode);
 
 // can_build : test if the build is legit
 bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building);
 
 // exit_build_mode : reset build mode and cusor
 void exit_build_mode(struct camera *camera, int *build_mode);
+
+// large_building : detect large buildings and adjust the building's id
+struct building large_building(struct map *map, const int build_mode, short unsigned int *loc_x, short unsigned int *loc_y);
 
 // update_stat : compute the new stat with buildings
 void update_stat(struct calccity *calccity, struct map *map);

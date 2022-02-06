@@ -8,4 +8,4 @@ calccity.png:
   charset: print
   grid.size: 5x6
   grid.padding: 1
-  proportional: True
+  proportional: true

@@ -96,7 +96,7 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 	extern const bopti_image_t img_fn_keys;
 
 	// Date in the top-left corner
-	dprint_opt(4, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
+	dprint_opt(5, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
 	
 	// Cursor
 	if (disp_cursor)
