@@ -57,64 +57,24 @@ void default_values(struct calccity *calccity, struct camera *camera, struct map
 			// Water
 			if ((x * y == 0) || (x == 49 || y == 49))
 			{
-				map->data[y][x] = 139;
+				map->data[y][x] = 127;
 				map->id[y][x] = 1;
 			}
 			
 			// Ground
 			else
 			{
-				map->data[y][x] = 48 + rand() % 2;
+				map->data[y][x] = 125 + rand() % 2;
 				map->id[y][x] = 0;
-			}
-			
-			// Shorelines
-			switch (y)
-			{
-				case 1:
-					switch (x)
-					{
-						case 1:
-							map->data[y][x] = 110;
-							break;
-
-						case 48:
-							map->data[y][x] = 112;
-							break;
-
-						default:
-							if (x != 0 && x != 49) map->data[y][x] = 111;
-							break;
-					}
-					break;
-			
-				case 48:
-					switch (x)
-					{
-						case 1:
-							map->data[y][x] = 130;
-							break;
-
-						case 48:
-							map->data[y][x] = 132;
-							break;
-
-						default:
-							if (x != 0 && x != 49) map->data[y][x] = 131;
-							break;
-					}
-					break;
-
-				default:
-					if (y != 0 && y != 49)
-					{
-						if (x == 1) map->data[y][x] = 120;
-						if (x == 48) map->data[y][x] = 122;
-					}
-			}
+			}	
 		}
 	}
 
+	for (int y = 0; y < 50; y ++)
+	{
+		for (int x = 0; x < 50; x ++)
+			check(map, x, y);
+	}
 }
 
 
@@ -154,7 +114,47 @@ void next_step(struct calccity *calccity, struct map *map)
 		}
 	}
 
-	// Disasters gestion soon™
+	if (calccity->disaster)
+	{
+		// Firehazard
+		if (calccity->stat[7] > 500 && rand() % 1000 == 0)
+		{
+			display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
+			disaster(calccity, map, calccity->stat[7]);
+			update_stat(calccity, map);
+		}
+
+		// Nuclear disaster
+		if (calccity->stat[8] >= 1 && rand() % 10000 == 0)
+		{
+			display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
+			disaster(calccity, map, calccity->stat[8] * 100);
+			update_stat(calccity, map);
+		}
+
+		// Earthquake
+		if (rand() % 10000 == 0)
+		{
+			display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
+			disaster(calccity, map, rand() % 10);
+			update_stat(calccity, map);
+		}
+
+		// Treasure
+		if (calccity->misc[0] > 1000 && rand() % 1000 == 0)
+		{
+			if (rand() % 2)
+			{
+				display_message("DES INVESTISSEMENT AUDACIEUX VOUS ONT RAPPORTES 1000$ !");
+				calccity->misc[0] += 1000;
+			}
+			else
+			{
+				display_message("DES INVESTISSEMENT FOIREUX VOUS ONT FAIT PERDRE 1000$.");
+				calccity->misc[0] -= 1000;
+			}
+		}
+	}
 }
 
 
@@ -229,34 +229,47 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 				exit_build_mode(camera, &build_mode);
 
 			// Build validation
-			if (key == KEY_SHIFT && can_build(calccity, camera, map, &building))
+			if (key == KEY_SHIFT)
 			{
 				unsigned short loc_x = building.size[0] * floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
 				unsigned short loc_y = building.size[1] * floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+				unsigned char index = 0;
 
-				if (build_mode == 5 || build_mode == 8 || build_mode == 11 || build_mode == 27 || build_mode == 28 || build_mode == 29)
+				if (can_build(calccity, map, &building, loc_x, loc_y, &index))
 				{
-					building = large_building(map, build_mode, &loc_x, &loc_y);
-					for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+					// Large buildings gestion
+					if (build_mode == 5 || build_mode == 8 || build_mode == 11 || build_mode == 27 || build_mode == 28 || build_mode == 29)
 					{
-						for (int x = loc_x; x < loc_x + building.size[0]; x ++)
-							map->id[y][x] = 0;
+						building = large_building(map, &build_mode, &loc_x, &loc_y);
+						for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+						{
+							for (int x = loc_x; x < loc_x + building.size[0]; x ++)
+								map->id[y][x] = 0;
+						}
+						update_stat(calccity, map);
 					}
+					
+					// Destruction
+					if (map->id[loc_y][loc_x] != 1 && build_mode == 0)
+						destruction(map, loc_x, loc_y);
+
+					// Other buildings
+					else
+					{
+						for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+						{
+							for (int x = loc_x; x < loc_x + building.size[0]; x ++)
+							{
+								map->data[y][x] = building.id[index];
+								map->id[y][x] = -1;
+								index ++;
+							}
+						}
+						map->id[loc_y][loc_x] = build_mode;
+					}
+					calccity->misc[0] -= building.cost;
 					update_stat(calccity, map);
 				}
-				
-				unsigned char index = 0;
-				for (int y = loc_y; y < loc_y + building.size[1]; y ++)
-				{
-					for (int x = loc_x; x < loc_x + building.size[0]; x ++)
-					{
-						map->data[y][x] = building.id[index];
-						index ++;
-					}
-				}
-				map->id[loc_y][loc_x] = build_mode;
-				calccity->misc[0] -= building.cost;
-				update_stat(calccity, map);
 			}
 
 		}
@@ -315,10 +328,8 @@ void keyboard_managment(struct camera *camera, const int key, const int build_mo
 }
 
 
-bool can_build(struct calccity *calccity, struct camera *camera, struct map *map, struct building *building)
+bool can_build(struct calccity *calccity, struct map *map, struct building *building, const unsigned short loc_x, const unsigned short loc_y, unsigned char *index)
 {
-	unsigned short loc_x = building->size[0] * floor(camera->x + camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1));
-	unsigned short loc_y = building->size[1] * floor(camera->y + camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
 
 	// Not enougth money
 	if (calccity->misc[0] < building->cost)
@@ -327,25 +338,38 @@ bool can_build(struct calccity *calccity, struct camera *camera, struct map *map
 		return false;
 	}
 
+	// harbor's orientation
+	if (building->id[0] == 62)
+	{
+		*index = check_harbor(map, loc_x, loc_y);
+		if (*index == 4)
+		{
+			display_message("VOUS DEVEZ CONSTUIRE LES PORTS A PROXIMITE DE L'EAU");
+			return false;
+		}
+	}
 
 	for (int y = loc_y; y < loc_y + building->size[1]; y ++)
 	{
 		for (int x = loc_x; x < loc_x + building->size[0]; x ++)
 		{
 			// Build on water
-			if (map->data[y][x] == 139)
+			if (map->id[y][x] == 1 && building->id[0] != 110)
 			{
 				display_message("VOUS NE POUVEZ PAS CONSTRUIRE SUR L'EAU.");
 				return false;
 			}
 
 			// Build on another building
-			if (map->data[y][x] != 48 && map->data[y][x] != 49 && map->data[y][x] < 110 && building->id[0] != 48)
+			if (map->id[y][x] != 0 && building->id[0] != 110)
 			{
 				display_message("VOUS NE POUVEZ PAS CONSTRUIRE SUR BATIMENT EXISTANT.");
 				return false;
 			}
 
+			// Build dirt on dirt or water on water
+			if ((building->id[0] == 110 && map->id[y][x] == 0) || (building->id[0] == 127 && map->id[y][x] == 1))
+				return false;
 		}
 	}
 
@@ -361,7 +385,7 @@ void exit_build_mode(struct camera *camera, int *build_mode)
 }
 
 
-struct building large_building(struct map *map, const int build_mode, short unsigned int *loc_x, short unsigned int *loc_y)
+struct building large_building(struct map *map, int *build_mode, short unsigned int *loc_x, short unsigned int *loc_y)
 {
 	extern const struct building buildings[42];
 	const short unsigned int Y[16] = {*loc_y - 1, *loc_y - 1, *loc_y, *loc_y, *loc_y - 1, *loc_y - 1, *loc_y, *loc_y, *loc_y, *loc_y, *loc_y + 1, *loc_y + 1, *loc_y, *loc_y, *loc_y + 1, *loc_y + 1};
@@ -374,7 +398,7 @@ struct building large_building(struct map *map, const int build_mode, short unsi
 		{
 			short unsigned int y = Y[4 * i + j];
 			short unsigned int x = X[4 * i + j];
-			if (map->id[y][x] == build_mode) check ++;
+			if (map->id[y][x] == *build_mode) check ++;
 		}
 
 		if (check == 3)
@@ -382,41 +406,40 @@ struct building large_building(struct map *map, const int build_mode, short unsi
 			*loc_x = X[4 * i];
 			*loc_y = Y[4 * i];
 
-			switch (build_mode)
+			switch (*build_mode)
 			{
 				case 5:
-					return buildings[35];
+					*build_mode = 35;
 					break;
 				
 				case 8:
-					return buildings[36];
+					*build_mode = 36;
 					break;
 				
 				case 11:
-					return buildings[37];
+					*build_mode = 37;
 					break;
 				
 				case 27:
-					return buildings[38];
+					*build_mode = 38;
 					break;
 				
 				case 28:
-					return buildings[39];
+					*build_mode = 39;
 					break;
 
 				case 29:
-					return buildings[40];
+					*build_mode = 40;
 					break;
 			}
 		}
 	}
-	return buildings[build_mode];
+	return buildings[*build_mode];
 }
 
 
 void update_stat(struct calccity *calccity, struct map *map)
-{
-	
+{	
 	extern const struct building buildings[42];
 
 	// Reset stat
@@ -428,6 +451,10 @@ void update_stat(struct calccity *calccity, struct map *map)
 	{
 		for (int x = 0; x < 50; x ++)
 		{
+			// Checking shorelines, roads and railways
+			check(map, x, y);
+
+			// Update stat
 			if (map->id[y][x] > 1)
 			{
 				struct building building = buildings[map->id[y][x]];
@@ -595,4 +622,178 @@ void end_year(struct calccity *calccity)
 
 	while (key != KEY_ALPHA)
 		key = getkey_opt(opt, &timeout).key;
+}
+
+
+void check(struct map *map, const int x, const int y)
+{
+	switch (map->id[y][x])
+	{	
+		// shorelines
+		case 0:
+			int shore_id = 110;
+			if ((y - 1 >= 0) && map->id[y - 1][x] != 1) shore_id += 8;
+			if ((y + 1 < 50) && map->id[y + 1][x] != 1) shore_id += 1;
+			if ((x - 1 >= 0) && map->id[y][x - 1] != 1) shore_id += 4;
+			if ((x + 1 < 50) && map->id[y][x + 1] != 1) shore_id += 2;
+
+			if (map->data[y][x] != 125 && map->data[y][x] != 126 && shore_id == 125) shore_id += rand() % 2;			
+			map->data[y][x] = shore_id;
+			break;
+
+		// roads
+		case 15:
+			int road_id = 80;
+			if ((y - 1 >= 0) && map->id[y - 1][x] == 15) road_id += 8;
+			if ((y + 1 < 50) && map->id[y + 1][x] == 15) road_id += 1;
+			if ((x - 1 >= 0) && map->id[y][x - 1] == 15) road_id += 4;
+			if ((x + 1 < 50) && map->id[y][x + 1] == 15) road_id += 2;
+			
+			if (road_id > 80) road_id --;
+			map->data[y][x] = road_id;
+			break;
+
+		// railways
+		case 18:
+			int rail_id = 95;
+			if ((y - 1 >= 0) && map->id[y - 1][x] == 18) rail_id += 8;
+			if ((y + 1 < 50) && map->id[y + 1][x] == 18) rail_id += 1;
+			if ((x - 1 >= 0) && map->id[y][x - 1] == 18) rail_id += 4;
+			if ((x + 1 < 50) && map->id[y][x + 1] == 18) rail_id += 2;
+			
+			if (rail_id > 95) rail_id --;
+			map->data[y][x] = rail_id;
+			break;
+	}
+}
+
+
+int check_harbor(struct map *map, const int x, const int y)
+{
+	if (map->id[y][x - 1] == 1) return 0;
+	if (map->id[y][x + 1] == 1) return 1;
+	if (map->id[y - 1][x] == 1) return 2;
+	if (map->id[y + 1][x] == 1) return 3;
+
+	return 4;
+}
+
+
+int get_reference_id(const unsigned char tile_id)
+{
+	switch (tile_id)
+	{
+		case 0: case 1:
+			return 17;
+			break;
+
+		case 50: case 51: case 60: case 61:
+			return 21;
+			break;
+
+		case 3: case 4: case 13: case 14:
+			return 22;
+			break;
+
+		case 42: case 43: case 52: case 53:
+			return 26;
+			break;
+		
+		case 28: case 29: case 38: case 39:
+			return 33;
+			break;
+		
+		case 10: case 11: case 20: case 21:
+			return 34;
+			break;
+		
+		case 5: case 6: case 15: case 16:
+			return 35;
+			break;
+		
+		case 7: case 8: case 17: case 18:
+			return 36;
+			break;
+		
+		case 30: case 31: case 40: case 41:
+			return 37;
+			break;
+		
+		case 26: case 27: case 36: case 37:
+			return 38;
+			break;
+		
+		case 22: case 23: case 32: case 33:
+			return 39;
+			break;
+		
+		case 24: case 25: case 34: case 35:
+			return 40;
+			break;
+		
+		case 2: case 12:
+			return 41;
+			break;		
+	}
+	return 0;
+}
+
+
+void destruction(struct map *map, int loc_x, int loc_y)
+{
+	extern const struct building buildings[42];
+	
+	unsigned char ref_id;
+	if (map->id[loc_y][loc_x] == -1) ref_id = get_reference_id(map->data[loc_y][loc_x]);
+	else ref_id = map->id[loc_y][loc_x];
+	
+	const struct building building = buildings[ref_id];
+	const int ref_x = loc_x, ref_y = loc_y;
+
+	if (map->id[ref_y - 1][ref_x] == ref_id) loc_y --;
+	if (map->id[ref_y - 1][ref_x - 1] == ref_id){loc_x --; loc_y --;}
+	if (map->id[ref_y][ref_x - 1] == ref_id) loc_x --;
+
+	for (int y = loc_y; y < loc_y + building.size[1]; y ++)
+	{
+		for (int x = loc_x; x < loc_x + building.size[0]; x ++)
+		{
+			map->data[y][x] = 125 + rand() % 2;
+			map->id[y][x] = 0;
+		}
+	}
+}
+
+
+void disaster(struct calccity *calccity, struct map *map, const int destruction_rate)
+{
+	for (int y = 0; y < 50; y ++)
+	{
+		for (int x = 0; x < 50; x ++)
+		{
+			if (map->id[y][x] > 1 && rand() % destruction_rate <= destruction_rate / 4)
+			{
+				map->id[y][x] = 0;
+				map->data[y][x] = 125 + rand() % 2; 
+
+				// Large building check
+				if (map->id[y][x + 1] == -1)
+				{
+					map->id[y][x + 1] = 0;
+					map->data[y][x + 1] = 125 + rand() % 2;
+				}
+				if (map->id[y + 1][x + 1] == -1)
+				{
+					map->id[y + 1][x + 1] = 0;
+					map->data[y + 1][x + 1] = 125 + rand() % 2;
+				}
+				if (map->id[y + 1][x] == -1)
+				{
+					map->id[y][x + 1] = 0;
+					map->data[y][x + 1] = 125 + rand() % 2;
+				}
+				calccity->misc[1] = calccity->misc[1] / (rand() % destruction_rate);
+			}
+		}
+	}
 }

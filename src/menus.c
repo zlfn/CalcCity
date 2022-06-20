@@ -309,7 +309,7 @@ int menu_6(struct calccity *calccity)
 
 	while (key != KEY_ALPHA)
 	{
-		int prcnt = 100 - (calccity->time_speed * 100 / 7500);
+		int prcnt = 100 - (calccity->time_speed * 100 / 10000);
 
 		dclear(C_WHITE);
 

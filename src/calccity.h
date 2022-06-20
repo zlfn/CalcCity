@@ -74,8 +74,7 @@ struct camera
 struct map
 {
 	unsigned char data[50][50];
-
-	unsigned char id[50][50];
+	char id[50][50];
 };
 
 

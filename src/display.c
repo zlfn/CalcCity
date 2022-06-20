@@ -45,7 +45,7 @@ void display_large_map(struct calccity *calccity, struct camera *camera, struct 
 			int cam_x = x + camera->x, cam_y = y + camera->y;
 
 			// Water
-			if (cam_y > 49 || cam_x > 49 || map->data[cam_y][cam_x] == 139) 
+			if (cam_y > 49 || cam_x > 49 || map->data[cam_y][cam_x] == 127) 
 				dsubimage(3 + x * 15, y * 15, &img_large_water, 15 * calccity->blinker_water, 0, 15 * (calccity->blinker_water + 1), 15, DIMAGE_NONE);
 			else
 			{
@@ -130,7 +130,7 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 }
 
 
-void display_message(char* message)
+void display_message(char *message)
 {
 	dclear(C_WHITE);
 
@@ -144,13 +144,13 @@ void display_message(char* message)
 	int total_offset = 0;
     for (int i = 0; i < 5; i ++)
     {
-        dtext_opt(3, 7 * i + 8, C_BLACK, C_WHITE, 0, 0, message + total_offset, 20);
+        dtext_opt(3, 7 * i + 8, C_BLACK, C_WHITE, 0, 0, message + total_offset, 27);
         
         int offset = 0;
         while (message[total_offset + offset] != '\0') offset += 1;
 
         if (!offset) break;
-        else if (offset > 20) total_offset += 20;
+        else if (offset > 27) total_offset += 27;
         else total_offset += offset;
     }
 
