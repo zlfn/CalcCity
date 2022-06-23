@@ -105,6 +105,7 @@ void next_step(struct calccity *calccity, struct map *map)
 	if (!(calccity->tick % calccity->time_speed))
 	{
 		calccity->month ++;
+		
 		if (calccity->month > 12)
 		{
 			update_stat(calccity, map);
@@ -112,46 +113,46 @@ void next_step(struct calccity *calccity, struct map *map)
 			calccity->month = 1;
 			calccity->year ++;
 		}
-	}
 
-	if (calccity->disaster)
-	{
-		// Firehazard
-		if (calccity->stat[7] > 500 && rand() % 1000 == 0)
+		if (calccity->disaster)
 		{
-			display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
-			disaster(calccity, map, calccity->stat[7]);
-			update_stat(calccity, map);
-		}
-
-		// Nuclear disaster
-		if (calccity->stat[8] >= 1 && rand() % 10000 == 0)
-		{
-			display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
-			disaster(calccity, map, calccity->stat[8] * 100);
-			update_stat(calccity, map);
-		}
-
-		// Earthquake
-		if (rand() % 10000 == 0)
-		{
-			display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
-			disaster(calccity, map, rand() % 10);
-			update_stat(calccity, map);
-		}
-
-		// Treasure
-		if (calccity->misc[0] > 1000 && rand() % 1000 == 0)
-		{
-			if (rand() % 2)
+			// Firehazard
+			if (calccity->stat[7] > 500 && rand() % 1000 == 0)
 			{
-				display_message("DES INVESTISSEMENT AUDACIEUX VOUS ONT RAPPORTES 1000$ !");
-				calccity->misc[0] += 1000;
+				display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
+				disaster(calccity, map, calccity->stat[7]);
+				update_stat(calccity, map);
 			}
-			else
+
+			// Nuclear disaster
+			if (calccity->stat[8] >= 1 && rand() % 10000 == 0)
 			{
-				display_message("DES INVESTISSEMENT FOIREUX VOUS ONT FAIT PERDRE 1000$.");
-				calccity->misc[0] -= 1000;
+				display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
+				disaster(calccity, map, calccity->stat[8] * 100);
+				update_stat(calccity, map);
+			}
+
+			// Earthquake
+			if (rand() % 10000 == 0)
+			{
+				display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
+				disaster(calccity, map, rand() % 10);
+				update_stat(calccity, map);
+			}
+
+			// Treasure
+			if (calccity->misc[0] > 1000 && rand() % 1000 == 0)
+			{
+				if (rand() % 2)
+				{
+					display_message("DES INVESTISSEMENT AUDACIEUX VOUS ONT RAPPORTES 1000$ !");
+					calccity->misc[0] += 1000;
+				}
+				else
+				{
+					display_message("DES INVESTISSEMENT FOIREUX VOUS ONT FAIT PERDRE 1000$.");
+					calccity->misc[0] -= 1000;
+				}
 			}
 		}
 	}
@@ -274,7 +275,6 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 		}
 	}
-
 	// Free timer
 	if (t >= 0) timer_stop(t);
 }

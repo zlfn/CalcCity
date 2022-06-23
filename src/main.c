@@ -1,5 +1,7 @@
 #include <gint/display.h>
+#include <gint/gint.h>
 #include "core.h"
+#include "save.h"
 
 
 int main(void)
@@ -13,8 +15,13 @@ int main(void)
 	struct calccity calccity;
 	struct camera camera;
 	struct map map;
-	default_values(&calccity, &camera, &map);
+	gint_world_switch(GINT_CALL(read_save, (void *)&calccity, (void *)&camera, (void *)&map));
 
+	// Game
 	main_loop(&calccity, &camera, &map);
+
+	// Backup data
+	gint_world_switch(GINT_CALL(write_save, (void *)&calccity, (void *)&camera, (void *)&map));
+
 	return 1;
 }

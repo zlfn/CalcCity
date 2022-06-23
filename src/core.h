@@ -1,6 +1,7 @@
 #ifndef _CORE_H
 #define _CORE_H
 
+#include <stdbool.h>
 #include "calccity.h"
 #include "display.h"
 #include "menus.h"

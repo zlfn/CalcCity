@@ -15,6 +15,7 @@ set(SOURCES
   src/display.c
   src/menus.c
   src/calccity.c
+  src/save.c
 )
 
 set(ASSETS)
