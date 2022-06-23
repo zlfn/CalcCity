@@ -116,8 +116,9 @@ void next_step(struct calccity *calccity, struct map *map)
 
 		if (calccity->disaster)
 		{
+			int random_event = rand() % 10000;
 			// Firehazard
-			if (calccity->stat[7] > 500 && rand() % 1000 == 0)
+			if (calccity->stat[7] > 500 && random_event == 0)
 			{
 				display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
 				disaster(calccity, map, calccity->stat[7]);
@@ -125,7 +126,7 @@ void next_step(struct calccity *calccity, struct map *map)
 			}
 
 			// Nuclear disaster
-			if (calccity->stat[8] >= 1 && rand() % 10000 == 0)
+			if (calccity->stat[8] >= 1 && random_event == 1)
 			{
 				display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
 				disaster(calccity, map, calccity->stat[8] * 100);
@@ -133,7 +134,7 @@ void next_step(struct calccity *calccity, struct map *map)
 			}
 
 			// Earthquake
-			if (rand() % 10000 == 0)
+			if (random_event == 2)
 			{
 				display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
 				disaster(calccity, map, rand() % 10);
@@ -141,7 +142,7 @@ void next_step(struct calccity *calccity, struct map *map)
 			}
 
 			// Treasure
-			if (calccity->misc[0] > 1000 && rand() % 1000 == 0)
+			if (calccity->misc[0] > 1000 && random_event == 3)
 			{
 				if (rand() % 2)
 				{
@@ -155,6 +156,13 @@ void next_step(struct calccity *calccity, struct map *map)
 				}
 			}
 		}
+	}
+
+	// No money
+	if (calccity->misc[0] == 0)
+	{
+		display_message("DES MECENES PRIVES VOUS ONT FAIT UN DON DE 1000$.");
+		calccity->misc[0] += 1000;
 	}
 }
 

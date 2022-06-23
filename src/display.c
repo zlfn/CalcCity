@@ -1,6 +1,7 @@
 #include <gint/display.h>
 #include <gint/keyboard.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "display.h"
 
@@ -95,8 +96,13 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 {
 	extern const bopti_image_t img_fn_keys;
 
-	// Date in the top-left corner
-	dprint_opt(5, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%d-%d", calccity->month, calccity->year);
+	// Date in the top-left corner and treasure
+	char up_data[25];
+	sprintf(up_data, "%d-%d | %d$", calccity->month, calccity->year, calccity->misc[0]);
+	int width;
+	dsize(up_data, NULL, &width, NULL);
+    drect(4, 1, 5 + width, 6, C_WHITE);
+	dprint_opt(5, 1, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, up_data);
 	
 	// Cursor
 	if (disp_cursor)
