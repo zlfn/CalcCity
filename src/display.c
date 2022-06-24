@@ -23,12 +23,12 @@ void display_main(struct calccity *calccity, struct camera *camera, struct map *
     if (camera->zoom == 0)
 	{
 		display_large_map(calccity, camera, map);
-		display_around(calccity, camera, disp_cursor);
+		display_around(calccity, camera, map, disp_cursor);
 	}
 	else
 	{
 		display_mini_map(camera, map);
-		display_around(calccity, camera, 0);
+		display_around(calccity, camera, map, 0);
 	}
 }
 
@@ -92,13 +92,33 @@ void display_mini_map(struct camera *camera, struct map *map)
 	}
 }
 
-void display_around(struct calccity *calccity, struct camera *camera, const int disp_cursor)
+void display_around(struct calccity *calccity, struct camera *camera, struct map *map, const int disp_cursor)
 {
 	extern const bopti_image_t img_fn_keys;
+	extern const struct building buildings[42];
 
-	// Date in the top-left corner and treasure
-	char up_data[25];
-	sprintf(up_data, "%d-%d   %d$", calccity->month, calccity->year, calccity->misc[0]);
+	// Informations on top-left corner (time, treasure, building under cursor)
+	if (camera->display_name)
+	{	
+		char id;
+		unsigned short loc_x = floor(camera->x + camera->cursor_x / 2);
+		unsigned short loc_y = floor(camera->y + camera->cursor_y / 2);
+		
+		if (map->id[loc_y][loc_x] == -1)
+			id = get_reference_id(map->data[loc_y][loc_x]);
+		else
+			id = map->id[loc_y][loc_x];
+		
+		char building_data[50];
+		sprintf(building_data, "%s", buildings[id].name);
+        int width;
+        dsize(building_data, NULL, &width, NULL);
+        drect(4, 6, 5 + width, 11, C_WHITE);
+        dprint_opt(5, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, building_data);
+	}
+
+	char up_data[50];
+	sprintf(up_data, "%d-%d  %d$", calccity->month, calccity->year, calccity->misc[0]);
 	int width;
 	dsize(up_data, NULL, &width, NULL);
     drect(4, 1, 5 + width, 6, C_WHITE);
@@ -119,7 +139,8 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 		if (camera->cursor_size[0] > 8 && camera->cursor_size[1] > 8)
 		{
 			unsigned short x = camera->cursor_size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1)) + 3;
-			unsigned short y = camera->cursor_size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+			unsigned short y = camera->cursor_size[0] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+
 			drect_border(x, y, x + camera->cursor_size[0], y + camera->cursor_size[1], C_NONE, 1, C_BLACK);
 		}
 

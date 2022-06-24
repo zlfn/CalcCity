@@ -68,6 +68,7 @@ struct camera
 
 	int cursor_x, cursor_y;
 	int cursor_size[2];
+	int display_name;
 };
 
 

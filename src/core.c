@@ -4,6 +4,7 @@
 #include <gint/timer.h>
 #include <gint/clock.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "core.h"
@@ -189,11 +190,12 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
         display_main(calccity, camera, map, 1);
         if (build_mode >= 0)
         {
+        	char building_data[50];
+        	sprintf(building_data, "%s:%d$", building.name, building.cost);
         	int width;
-        	dsize(building.name, NULL, &width, NULL);
-        	drect(4, 6, 5 + width, 17, C_WHITE);
-        	dprint_opt(5, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "$%d", building.cost);
-        	dprint_opt(5, 13, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, "%s", building.name);
+        	dsize(building_data, NULL, &width, NULL);
+        	drect(4, 6, 5 + width, 11, C_WHITE);
+        	dprint_opt(5, 7, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, building_data);
     	}
         dupdate();
 
@@ -233,6 +235,9 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 		if (build_mode >= 0)
 		{	
+			if (camera->display_name)
+				camera->display_name = 0;
+
 			// Build annulation
 			if (key == KEY_ALPHA)
 				exit_build_mode(camera, &build_mode);
@@ -283,6 +288,10 @@ void main_loop(struct calccity *calccity, struct camera *camera, struct map *map
 
 		}
 	}
+	// Exit build mode
+	if (build_mode != -1)
+		exit_build_mode(camera, &build_mode);
+
 	// Free timer
 	if (t >= 0) timer_stop(t);
 }
@@ -330,7 +339,13 @@ void keyboard_managment(struct camera *camera, const int key, const int build_mo
 				if (camera->x > 35) camera->x = 35;
 				if (camera->y > 43) camera->y = 43;
 				camera->zoom = 1;
+				camera->display_name = 0;
 			}
+			break;
+
+		case KEY_OPTN:
+			if (!camera->zoom)
+				camera->display_name = (camera->display_name + 1) % 2;
 			break;
 	}
 }
@@ -488,22 +503,22 @@ void update_stat(struct calccity *calccity, struct map *map)
 
 						// FUNDS : health
 						case 1:
-							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[3] / 100));
+							calccity->stat[i] += floor((building.stat[i] * calccity->funds[3]) / 100);
 							break;
 
 						// FUNDS : crime
 						case 6:
-							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[0] / 100));
+							calccity->stat[i] += floor((building.stat[i] * calccity->funds[0]) / 100);
 							break;
 
 						// FUNDS : firehazard
 						case 7:
-							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[1] / 100));
+							calccity->stat[i] += floor((building.stat[i] * calccity->funds[1]) / 100);
 							break;
 
 						// FUNDS : education
 						case 2:
-							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[2] / 100));
+							calccity->stat[i] += floor((building.stat[i] * calccity->funds[2]) / 100);
 							break;
 
 						// special calculation of the annual cost
