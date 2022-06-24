@@ -112,47 +112,47 @@ void next_step(struct calccity *calccity, struct map *map)
 			end_year(calccity);
 			calccity->month = 1;
 			calccity->year ++;
-		}
 
-		if (calccity->disaster)
-		{
-			int random_event = rand() % 10000;
-			// Firehazard
-			if (calccity->stat[7] > 500 && random_event == 0)
+			if (calccity->disaster)
 			{
-				display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
-				disaster(calccity, map, calccity->stat[7]);
-				update_stat(calccity, map);
-			}
-
-			// Nuclear disaster
-			if (calccity->stat[8] >= 1 && random_event == 1)
-			{
-				display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
-				disaster(calccity, map, calccity->stat[8] * 100);
-				update_stat(calccity, map);
-			}
-
-			// Earthquake
-			if (random_event == 2)
-			{
-				display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
-				disaster(calccity, map, rand() % 10);
-				update_stat(calccity, map);
-			}
-
-			// Treasure
-			if (calccity->misc[0] > 1000 && random_event == 3)
-			{
-				if (rand() % 2)
+				int random_event = rand() % 10000;
+				// Firehazard
+				if (calccity->stat[7] > 1000 && random_event == 0)
 				{
-					display_message("DES INVESTISSEMENT AUDACIEUX VOUS ONT RAPPORTES 1000$ !");
-					calccity->misc[0] += 1000;
+					display_message("UN INCENDIE A RAVAGE VOTRE VILLE.");
+					disaster(calccity, map, calccity->stat[7]);
+					update_stat(calccity, map);
 				}
-				else
+
+				// Nuclear disaster
+				if (calccity->stat[8] >= 1 && random_event == 1)
 				{
-					display_message("DES INVESTISSEMENT FOIREUX VOUS ONT FAIT PERDRE 1000$.");
-					calccity->misc[0] -= 1000;
+					display_message("UN ACCIDENT NUCLEAIRE A RAVAGE VOTRE VILLE.");
+					disaster(calccity, map, calccity->stat[8] * 100);
+					update_stat(calccity, map);
+				}
+
+				// Earthquake
+				if (random_event == 2)
+				{
+					display_message("UN TREMBLEMENT DE TERRE A RAVAGE VOTRE VILLE.");
+					disaster(calccity, map, rand() % 10);
+					update_stat(calccity, map);
+				}
+
+				// Treasure
+				if (calccity->misc[0] > 1000 && random_event == 3)
+				{
+					if (rand() % 2)
+					{
+						display_message("DES INVESTISSEMENT AUDACIEUX VOUS ONT RAPPORTES 1000$ !");
+						calccity->misc[0] += 1000;
+					}
+					else
+					{
+						display_message("DES INVESTISSEMENT FOIREUX VOUS ONT FAIT PERDRE 1000$.");
+						calccity->misc[0] -= 1000;
+					}
 				}
 			}
 		}
@@ -488,22 +488,22 @@ void update_stat(struct calccity *calccity, struct map *map)
 
 						// FUNDS : health
 						case 1:
-							calccity->stat[i] += floor(building.stat[i] * (calccity->funds[3] / 100));
+							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[3] / 100));
 							break;
 
 						// FUNDS : crime
 						case 6:
-							calccity->stat[i] += floor(building.stat[i] * (calccity->funds[0] / 100));
+							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[0] / 100));
 							break;
 
 						// FUNDS : firehazard
 						case 7:
-							calccity->stat[i] += floor(building.stat[i] * (calccity->funds[1] / 100));
+							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[1] / 100));
 							break;
 
 						// FUNDS : education
 						case 2:
-							calccity->stat[i] += floor(building.stat[i] * (calccity->funds[2] / 100));
+							calccity->stat[i] += floor(building.stat[i] * ((float)calccity->funds[2] / 100));
 							break;
 
 						// special calculation of the annual cost
@@ -779,7 +779,7 @@ void disaster(struct calccity *calccity, struct map *map, const int destruction_
 	{
 		for (int x = 0; x < 50; x ++)
 		{
-			if (map->id[y][x] > 1 && rand() % destruction_rate <= destruction_rate / 4)
+			if (map->id[y][x] > 1 && rand() % destruction_rate <= destruction_rate / 10)
 			{
 				map->id[y][x] = 0;
 				map->data[y][x] = 125 + rand() % 2; 

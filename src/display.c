@@ -98,7 +98,7 @@ void display_around(struct calccity *calccity, struct camera *camera, const int 
 
 	// Date in the top-left corner and treasure
 	char up_data[25];
-	sprintf(up_data, "%d-%d | %d$", calccity->month, calccity->year, calccity->misc[0]);
+	sprintf(up_data, "%d-%d   %d$", calccity->month, calccity->year, calccity->misc[0]);
 	int width;
 	dsize(up_data, NULL, &width, NULL);
     drect(4, 1, 5 + width, 6, C_WHITE);
