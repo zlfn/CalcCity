@@ -18,6 +18,7 @@ Tout droits réservés.
 [+] et [-] : zoomer / dézoomer sur la carte
 [SHIFT] : valider
 [ALPHA] : revenir en arrière
+[OPTN] : affiche le nom du bâtiment sous le curseur
 
 ### Construction
 
