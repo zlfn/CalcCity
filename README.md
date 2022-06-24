@@ -10,15 +10,15 @@ Tout droits réservés.
 
 ## Contrôles
 
-[REPLAY] : se déplacer
-[F1] et [F2] : menus de construction des bâtiments
-[F4] : taxes et subventions
-[F5] : statistiques
-[F6] : options diverse
-[+] et [-] : zoomer / dézoomer sur la carte
-[SHIFT] : valider
-[ALPHA] : revenir en arrière
-[OPTN] : affiche le nom du bâtiment sous le curseur
+ - [REPLAY] : se déplacer
+ - [F1] et [F2] : menus de construction des bâtiments
+ - [F4] : taxes et subventions
+ - [F5] : statistiques
+ - [F6] : options diverses
+ - [+] et [-] : zoomer / dézoomer sur la carte
+ - [SHIFT] : valider
+ - [ALPHA] : revenir en arrière
+ - [OPTN] : affiche le nom du bâtiment sous le curseur
 
 ### Construction
 
