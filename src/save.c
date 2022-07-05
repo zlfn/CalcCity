@@ -9,7 +9,7 @@ uint16_t const *filename_u16 = u"\\\\fls0\\CalcCity.sav";
 
 void read_save(struct calccity *calccity, struct camera *camera, struct map *map)
 {
-	if(gint[HWCALC] == HWCALC_G35PE2)
+	if (gint[HWCALC] == HWCALC_G35PE2)
 	{
 		FILE *fp;
 		fp = fopen(filename_u8, "rb");
@@ -29,7 +29,7 @@ void read_save(struct calccity *calccity, struct camera *camera, struct map *map
 	else
 	{
 		int fd = BFile_Open(filename_u16, BFile_ReadOnly);
-		if(fd < 0)
+		if (fd < 0)
 			default_values(calccity, camera, map);
 		else
 		{
@@ -44,7 +44,7 @@ void read_save(struct calccity *calccity, struct camera *camera, struct map *map
 
 void write_save(const struct calccity *calccity, const struct camera *camera, const struct map *map)
 {
-	if(gint[HWCALC] == HWCALC_G35PE2)
+	if (gint[HWCALC] == HWCALC_G35PE2)
 	{
 		FILE *fp;
 		fp = fopen(filename_u8, "wb");

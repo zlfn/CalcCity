@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
 #include "core.h"
 
@@ -20,7 +21,7 @@ int callback_tick(volatile int *tick)
 
 void default_values(struct calccity *calccity, struct camera *camera, struct map *map)
 {
-	srand(20211104);
+	srand(clock());
 
 	// Initialisation of struct calccity
 	memset(calccity, 0, sizeof *calccity);
