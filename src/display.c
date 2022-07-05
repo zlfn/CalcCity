@@ -139,7 +139,7 @@ void display_around(struct calccity *calccity, struct camera *camera, struct map
 		if (camera->cursor_size[0] > 8 && camera->cursor_size[1] > 8)
 		{
 			unsigned short x = camera->cursor_size[0] * floor(camera->cursor_x / (floor(camera->cursor_size[0] / 8) + 1)) + 3;
-			unsigned short y = camera->cursor_size[0] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
+			unsigned short y = camera->cursor_size[1] * floor(camera->cursor_y / (floor(camera->cursor_size[1] / 8) + 1));
 
 			drect_border(x, y, x + camera->cursor_size[0], y + camera->cursor_size[1], C_NONE, 1, C_BLACK);
 		}
